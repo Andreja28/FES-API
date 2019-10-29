@@ -1,4 +1,5 @@
-CWL="./workflows/cwl/"
-TOIL="./workflows/toil/"
+CWL="./workflows/cwl"
+TOIL="./workflows/toil"
 
-RESULTS = "./results/"
+RESULTS = "./results"
+RUNNING_WORKFLOWS = "./runnning"

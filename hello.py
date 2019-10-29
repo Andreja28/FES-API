@@ -28,12 +28,18 @@ def run_workflow():
     req_data = request.get_json()
 
     GUID = uuid.uuid4()
+    job_store_path = os.path.join(config.RUNNING_WORKFLOWS,str(GUID))
+
     if (req_data['cwl_toil'] == 'cwl'):
-        subprocess.Popen(['cwltoil','--jobStore','running/'+str(GUID), config.CWL +req_data["workflow"]+"/workflow.cwl", config.CWL +req_data['workflow']+"/inputs.yaml"])
+        cwl_path = os.path.join(config.CWL,req_data['workflow'], 'workflow.cwl')
+        yaml_path = os.path.join(config.CWL,req_data['workflow'], 'inputs.yaml')
+        subprocess.Popen(['cwltoil','--jobStore',job_store_path, cwl_path, yaml_path])
     elif (req_data['cwl_toil'] == 'toil'):
-        out_dir = os.path.join(os.path.abspath('results'), str(GUID))
+        out_dir = os.path.join(os.path.abspath(config.RESULTS), str(GUID))
+        toil_path = os.path.join(config.TOIL, 'main.py')
+
         os.mkdir(out_dir)
-        subprocess.Popen(['python', config.TOIL +req_data["workflow"]+"/main.py", "running/"+str(GUID),out_dir])
+        subprocess.Popen(['python', config.TOIL +req_data["workflow"]+"/main.py", job_store_path,out_dir])
     else:
         return {'status':'FAILED' }
 
