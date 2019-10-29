@@ -1,2 +1,4 @@
-CWL_PATH="./workflows/cwl/"
-TOIL_PATH="./workflows/toil/"
+CWL="./workflows/cwl/"
+TOIL="./workflows/toil/"
+
+RESULTS = "./results/"
