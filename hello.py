@@ -1,6 +1,6 @@
-from flask import Flask, request
+from flask import Flask, request, send_file
 from markupsafe import escape
-import os, time, subprocess, glob, uuid, config
+import os, time, subprocess, glob, uuid, config, zipfile
 
 app = Flask(__name__)
 
@@ -30,15 +30,16 @@ def run_workflow():
     GUID = uuid.uuid4()
     job_store_path = os.path.join(config.RUNNING_WORKFLOWS,str(GUID))
 
-    if (req_data['cwl_toil'] == 'cwl'):
-        cwl_path = os.path.join(config.CWL,req_data['workflow'], 'workflow.cwl')
-        yaml_path = os.path.join(config.CWL,req_data['workflow'], 'inputs.yaml')
-        subprocess.Popen(['cwltoil','--jobStore',job_store_path, cwl_path, yaml_path])
-    elif (req_data['cwl_toil'] == 'toil'):
-        out_dir = os.path.join(os.path.abspath(config.RESULTS), str(GUID))
+    out_dir = os.path.join(os.path.abspath(config.RESULTS), str(GUID))
+    os.mkdir(out_dir)
+
+    if (req_data['type'] == 'cwl'):
+        cwl_path = os.path.abspath(os.path.join(config.CWL,req_data['workflow'], 'workflow.cwl'))
+        yaml_path = os.path.abspath(os.path.join(config.CWL,req_data['workflow'], 'inputs.yaml'))
+        subprocess.Popen(['bash cwl_run.sh', cwl_path, yaml_path, os.path.abspath(job_store_path), os.path.abspath(out_dir)])
+    elif (req_data['type'] == 'toil'):
         toil_path = os.path.join(config.TOIL, 'main.py')
 
-        os.mkdir(out_dir)
         subprocess.Popen(['python', config.TOIL +req_data["workflow"]+"/main.py", job_store_path,out_dir])
     else:
         return {'status':'FAILED' }
@@ -48,3 +49,41 @@ def run_workflow():
     return {'status':'OK',
              'workflow_id': str(GUID) }
 
+
+
+
+@app.route('/get-results', methods=['GET'])
+def get_results():
+    GUID = request.args['workflow_id']
+    out_dir = os.path.join(config.RESULTS, GUID)
+    job_store = os.path.join(config.RUNNING_WORKFLOWS, GUID)
+    print('pozvao')
+    if (os.path.isdir(out_dir)):
+        print("out")
+        if (not os.path.isdir(job_store)):
+            print("job store")
+            dir_name = os.path.join(config.RESULTS, GUID)
+            zip_file = zipfile.ZipFile(dir_name+".zip", 'w')
+
+            for root, directories, files in os.walk(dir_name):
+                for filename in files:
+                    filePath = os.path.join(root, filename)
+                    zip_file.write(filePath)
+
+            zip_file.close()
+            print(dir_name)
+            return send_file(dir_name+".zip")
+            
+            
+        else:
+            return {
+                "success": False,
+                "message": "Job not finished"
+            }
+    else:
+        return{
+            "success": False,
+            "message": "Job doesn't exist."
+        }
+
+    return {}
