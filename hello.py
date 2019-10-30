@@ -40,7 +40,8 @@ def run_workflow():
         print(yaml_path)
         print(os.path.abspath(job_store_path))
         print(os.path.abspath(out_dir))
-        subprocess.Popen(['bash cwl_run.sh', cwl_path, yaml_path, os.path.abspath(job_store_path), os.path.abspath(out_dir)])
+        subprocess.Popen(['bash cwl_run.sh', cwl_path, yaml_path, os.path.abspath(job_store_path), 
+        os.path.abspath(out_dir)], stderr="file.out")
     elif (req_data['type'] == 'toil'):
         toil_path = os.path.join(config.TOIL, 'main.py')
 
