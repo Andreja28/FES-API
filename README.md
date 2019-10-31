@@ -78,7 +78,7 @@ Response:
 }
 ```
 
-### Get results
+### Get status
 
 ```bash
 curl 127.0.0.1:5000/get-status?workflow_id=$WORKFLOW_ID 
