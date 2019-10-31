@@ -76,6 +76,21 @@ Response:
     "status":"OK",
     "workflow_id":"1571847979.94"
 }
+```
+
+### Get results
+
+```bash
+curl 127.0.0.1:5000/get-status?workflow_id=$WORKFLOW_ID 
+```
+
+Response:
+
+```json
+{
+    "message":"Of the 44 jobs considered, there are 31 jobs with children, 13 jobs ready to run, 0 zombie jobs, 0 jobs with services, 0 services, and 0 jobs with log files currently in FileJobStore(/home/user/FES-API/running/bc56c810-fc3a-456e-bdb8-5f9c134a03eb).\n",
+    "success":true
+    }
 
 ```
 
@@ -93,3 +108,6 @@ Response:
 100 9350k  100 9350k    0     0  84.8M      0 --:--:-- --:--:-- --:--:-- 85.3M
 
 ```
+
+
+
