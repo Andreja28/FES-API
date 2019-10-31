@@ -10,7 +10,7 @@ def index():
     return {'status': 'OK',
             'your_request':req_data}
 
-@app.route('/get_all_workflows', methods=['POST'])
+@app.route('/get-workflows', methods=['POST'])
 def get_all_workflows():
     folders_cwl = [f.split('/')[-2] for f in glob.glob(config.CWL  + "**/")]
 
@@ -23,7 +23,7 @@ def get_all_workflows():
         }
     }
 
-@app.route('/run_workflow', methods=['POST'])
+@app.route('/run-workflow', methods=['POST'])
 def run_workflow():
     req_data = request.get_json()
 
@@ -55,6 +55,17 @@ def run_workflow():
              'workflow_id': str(GUID) }
 
 
+@app.route('/get-status', methods=['GET'])
+def get_status():
+    GUID = request.args['workflow_id']
+    job_store = os.path.abspath(os.path.join(config.RUNNING_WORKFLOWS, GUID))
+
+    message = subprocess.check_output(['toil', 'status', job_store])
+
+    return{
+        "success":True,
+        "message": message
+    }
 
 
 @app.route('/get-results', methods=['GET'])

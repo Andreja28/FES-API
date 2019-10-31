@@ -16,6 +16,8 @@ export FLASK_APP=hello.py
 flask run
 ```
 
+File config.py contains variables `CWL` (path to folder containing CWL workflows), `TOIL` (path to folder containing Toil workflows), `RESULTS` (path to folder where the workflow results will be stored) and `RUNNING_WORKFLOWS` (path to folder where the temoporary workflow job stores will be located).
+
 
 
 ## Examples
@@ -23,7 +25,7 @@ flask run
 ### Echo
 
 ```bash
-curl -d '{"workflow":"another-cwl", "cwl_toil":"cwl"}' -H "Content-Type:application/json" -X POST 127.0.0.1:5000/echo
+curl -d '{"workflow":"another-cwl", "type":"cwl"}' -H "Content-Type:application/json" -X POST 127.0.0.1:5000/echo
 ```
 
 Response:
@@ -33,7 +35,7 @@ Response:
     "status":"OK",
     "your_request":
     {
-        "cwl_toil":"cwl",
+        "type":"cwl",
         "workflow":"another-cwl"
     }
 }
@@ -44,7 +46,7 @@ Response:
 ### List of all workflows
 
 ```bash
-curl -H "Content-Type: application/json" -X POST 127.0.0.1:5000/get_all_workflows
+curl -H "Content-Type: application/json" -X POST 127.0.0.1:5000/get-workflows
 ```
 
 Response:
@@ -54,7 +56,7 @@ Response:
     "status":"OK",
     "workflows":
     {
-        "cwl":["another-cwl","import_cwl"],
+        "cwl":["annotation","broad"],
         "toil":["musico-api","pakRunner"]
     }
 }
@@ -64,7 +66,7 @@ Response:
 ### Run workflow
 
 ```bash
-curl -d '{"workflow":"another-cwl", "cwl_toil":"cwl"}' -H "Content-Type:application/json" -X POST 127.0.0.1:5000/run_workflow
+curl -d '{"workflow":"broad", "type":"cwl"}' -H "Content-Type:application/json" -X POST 127.0.0.1:5000/run-workflow
 ```
 
 Response:
@@ -74,5 +76,20 @@ Response:
     "status":"OK",
     "workflow_id":"1571847979.94"
 }
+
+```
+
+### Get results
+
+```bash
+curl 127.0.0.1:5000/get-results?workflow_id=$WORKFLOW_ID --output file.zip
+```
+
+Response:
+
+```bash
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 9350k  100 9350k    0     0  84.8M      0 --:--:-- --:--:-- --:--:-- 85.3M
 
 ```
