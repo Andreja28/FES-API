@@ -37,14 +37,12 @@ def run_workflow():
         cwl_path = os.path.abspath(os.path.join(config.CWL,req_data['workflow'], 'workflow.cwl'))
         yaml_path = os.path.abspath(os.path.join(config.CWL,req_data['workflow'], 'inputs.yaml'))
         
-        print('timeout -k '+str(req_data['timeout'])+' bash cwl_run.sh ' + cwl_path+" "+ yaml_path+" "+ os.path.abspath(job_store_path)+" "+
-        os.path.abspath(out_dir))
-        subprocess.Popen('timeout -k '+str(req_data['timeout'])+' bash cwl_run.sh ' + cwl_path+" "+ yaml_path+" "+ os.path.abspath(job_store_path)+" "+
+        subprocess.Popen('bash cwl_run.sh ' + cwl_path+" "+ yaml_path+" "+ os.path.abspath(job_store_path)+" "+
         os.path.abspath(out_dir), shell=True)
     elif (req_data['type'] == 'toil'):
         toil_path = os.path.join(config.TOIL, 'main.py')
 
-        subprocess.Popen(['timeout -k',str(req_data['timeout']),'python', config.TOIL +req_data["workflow"]+"/main.py", job_store_path,out_dir])
+        subprocess.Popen(['python', config.TOIL +req_data["workflow"]+"/main.py", job_store_path,out_dir])
     else:
         return {'status':'FAILED' }
 
