@@ -42,7 +42,7 @@ def run_workflow():
     elif (req_data['type'] == 'toil'):
         toil_path = os.path.join(config.TOIL, 'main.py')
 
-        subprocess.Popen(['python', config.TOIL +req_data["workflow"]+"/main.py", job_store_path,out_dir])
+        subprocess.Popen(['timeout -k 10 python', config.TOIL +req_data["workflow"]+"/main.py", job_store_path,out_dir])
     else:
         return {'status':'FAILED' }
 
