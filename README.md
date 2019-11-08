@@ -63,6 +63,24 @@ Response:
 
 ```
 
+### Create workflow
+
+This request specifies which workflow will be run and uploads two files (`.zip` containing all the input files for the workflow and `.yaml` file).
+
+```bash
+curl -F 'yaml=@mnt/d/inputs.yaml' -F 'input_zip=@mnt/d/inputs.zip' -F 'type=toil' -F 'workflow=musico-api' 127.0.0.1:5000/create-workflow
+
+```
+
+Response:
+
+```json
+{
+    "succcess": true,
+    "workflow_id":"3794dfa3-48c3-48f8-ab50-0e9fc014cd64"
+}
+```
+
 ### Run workflow
 
 This request takes 3 fields as an input: 
@@ -71,7 +89,7 @@ This request takes 3 fields as an input:
 * `timelimit` - specifies maximum execution time of the workflow in seconds. If the workflow exceeds this time limit it will be shutdown.
 
 ```bash
-curl -d '{"workflow":"pakRunner", "type":"toil", "timelimit":60}' -H "Content-Type:application/json" -X POST 127.0.0.1:5000/run-workflow
+curl -d '{"GUID":"3794dfa3-48c3-48f8-ab50-0e9fc014cd64", "timelimit":3000}' -H "Content-Type:application/json" -X POST 127.0.0.1:5000/run-workflow
 ```
 
 Response:
