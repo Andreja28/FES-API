@@ -1,6 +1,7 @@
 from flask import Flask, request, send_file
 from markupsafe import escape
-import os, time, subprocess, glob, uuid, config, zipfile
+import os, time, subprocess, glob, uuid, config, zipfile, sqlite3
+
 
 app = Flask(__name__)
 
@@ -23,11 +24,73 @@ def get_all_workflows():
         }
     }
 
+@app.route('/create-workflow', methods=['POST'])
+def create_wf():
+    req_data = request.get_json()
+    yaml_field = 'yaml'
+    zip_field = 'input_zip'
+    conn = sqlite3.connect('workflows')
+    print(request.files[yaml_field])
+    if yaml_field not in request.files or request.files[yaml_field].filename=='':
+        return{
+            'success': False,
+            'message': 'Yaml file not selected.'
+        }
+    
+    if zip_field not in request.files or request.files[zip_field].filename=='':
+        return{
+            'success': False,
+            'message': 'Zip with input files not selected.'
+        }
+
+    yaml = request.files[yaml_field]
+    inputs = request.files[zip_field]
+
+    GUID = uuid.uuid4()
+
+    in_dir = os.path.join(os.path.abspath(config.INPUTS), str(GUID))
+    os.mkdir(in_dir)
+
+
+    yaml.save(os.path.join(in_dir, 'inputs.yaml'))
+    inputs.save(os.path.join(in_dir, 'inputs.zip'))
+
+    with zipfile.ZipFile(os.path.join(in_dir, 'inputs.zip'), 'r') as zip_ref:
+        zip_ref.extractall(in_dir)
+
+    if (req_data['type'] == 'cwl'):
+        typeId = 1
+    else:
+        typeId = 0
+    c = conn.cursor()
+    c.execute("INSERT INTO stocks VALUES ('"+GUID+"',"+typeId+","+req_data['workflow']+")")
+    conn.commit()
+    return {
+        'success': True,
+        'workflow_id':GUID
+    }
+
 @app.route('/run-workflow', methods=['POST'])
 def run_workflow():
     req_data = request.get_json()
 
-    GUID = uuid.uuid4()
+    GUID = req_data['GUID']
+    conn = sqlite3.connect('workflows')
+    c = conn.cursor()
+    c.execute('SELECT * FROM workflows WHERE GUID="'+GUID+'"')
+    row = c.fetchone()
+    req_data['workflow'] = row[2]
+    if (row == None):
+        return {
+            'success':False,
+            "message": "Workflow doesn't exist."
+        }
+    c.execute('SELECT Type_Name FROM Types where ID='+str(row[1]))
+    row = c.fetchone()
+    req_data['type'] = row[0]
+    
+    
+    input_path = os.path.join(config.INPUTS,GUID)
     job_store_path = os.path.join(config.RUNNING_WORKFLOWS,str(GUID))
 
     out_dir = os.path.join(os.path.abspath(config.RESULTS), str(GUID))
@@ -35,7 +98,7 @@ def run_workflow():
 
     if (req_data['type'] == 'cwl'):
         cwl_path = os.path.abspath(os.path.join(config.CWL,req_data['workflow'], 'workflow.cwl'))
-        yaml_path = os.path.abspath(os.path.join(config.CWL,req_data['workflow'], 'inputs.yaml'))
+        yaml_path = os.path.abspath(os.path.join(input_path, 'inputs.yaml'))
         
         subprocess.Popen(['timeout',str(req_data['timelimit']),'cwltoil','--jobStore',os.path.abspath(job_store_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
     elif (req_data['type'] == 'toil'):
@@ -59,7 +122,7 @@ def get_status():
     message = subprocess.check_output(['toil', 'status', job_store])
 
     return{
-        "success":True,
+        "success": True,
         "message": message
     }
 
