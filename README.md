@@ -66,9 +66,9 @@ Response:
 ### Run workflow
 
 This request takes 3 fields as an input: 
-* `workflow` - specifies thename of the workflow
+* `workflow` - specifies the name of the workflow
 * `type` - specifies the type of the workflow (either `cwl` or `toil`)
-* `timelimit` - specifies max time the workflow is expected to be running. If a workflow exceeds this timelimit it will be shutdown.
+* `timelimit` - specifies maximum execution time of the workflow in seconds. If the workflow exceeds this time limit it will be shutdown.
 
 ```bash
 curl -d '{"workflow":"pakRunner", "type":"toil", "timelimit":60}' -H "Content-Type:application/json" -X POST 127.0.0.1:5000/run-workflow
