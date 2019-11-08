@@ -26,7 +26,7 @@ def get_all_workflows():
 
 @app.route('/create-workflow', methods=['POST'])
 def create_wf():
-    req_data = request.get_json()
+    req_data = dict(request.form)
     yaml_field = 'yaml'
     zip_field = 'input_zip'
     conn = sqlite3.connect('workflows')
@@ -47,7 +47,7 @@ def create_wf():
     inputs = request.files[zip_field]
 
     GUID = uuid.uuid4()
-
+    print(GUID)
     in_dir = os.path.join(os.path.abspath(config.INPUTS), str(GUID))
     os.mkdir(in_dir)
 
@@ -58,12 +58,13 @@ def create_wf():
     with zipfile.ZipFile(os.path.join(in_dir, 'inputs.zip'), 'r') as zip_ref:
         zip_ref.extractall(in_dir)
 
-    if (req_data['type'] == 'cwl'):
+    if (req_data['type'][0] == 'cwl'):
         typeId = 1
     else:
-        typeId = 0
+        typeId = 2
+    print(req_data)
     c = conn.cursor()
-    c.execute("INSERT INTO stocks VALUES ('"+GUID+"',"+typeId+","+req_data['workflow']+")")
+    c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow'][0]+"')")
     conn.commit()
     return {
         'success': True,
@@ -93,7 +94,7 @@ def run_workflow():
     input_path = os.path.join(config.INPUTS,GUID)
     job_store_path = os.path.join(config.RUNNING_WORKFLOWS,str(GUID))
 
-    out_dir = os.path.join(os.path.abspath(config.RESULTS), str(GUID))
+    out_dir = os.path.join(config.RESULTS, str(GUID))
     os.mkdir(out_dir)
 
     if (req_data['type'] == 'cwl'):
@@ -102,9 +103,11 @@ def run_workflow():
         
         subprocess.Popen(['timeout',str(req_data['timelimit']),'cwltoil','--jobStore',os.path.abspath(job_store_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
     elif (req_data['type'] == 'toil'):
-        toil_path = os.path.join(config.TOIL, 'main.py')
-        
-        subprocess.Popen(['timeout',str(req_data['timelimit']),'python', config.TOIL +req_data["workflow"]+"/main.py", job_store_path,input_path,out_dir])
+        toil_path = os.path.join(config.TOIL, req_data["workflow"] , 'main.py')
+        print('timeout '+str(req_data['timelimit'])+' python '+ toil_path+" " +job_store_path+" "+input_path+" "+out_dir)
+        #subprocess.Popen(['timeout',str(req_data['timelimit']),'python', config.TOIL +"/"+req_data["workflow"]+"/main.py", job_store_path,input_path,out_dir])
+
+        subprocess.Popen(['timeout',str(req_data['timelimit']),'python', toil_path, job_store_path,input_path,out_dir])
     else:
         return {'status':'FAILED' }
 
