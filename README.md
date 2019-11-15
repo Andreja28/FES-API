@@ -63,6 +63,7 @@ Response:
 
 ```
 
+
 ### Create workflow
 
 This request specifies which workflow will be run and uploads two files (`.zip` containing all the input files for the workflow and `.yaml` file).
@@ -77,7 +78,26 @@ Response:
 ```json
 {
     "succcess": true,
-    "workflow_id":"3794dfa3-48c3-48f8-ab50-0e9fc014cd64"
+    "GUID":"3794dfa3-48c3-48f8-ab50-0e9fc014cd64"
+}
+```
+
+
+### List of all created workflows
+
+```bash
+curl 127.0.0.1:5000/get-created-workflows
+```
+
+Respense:
+
+```json
+{
+    "workflows":[
+        {"GUID":"c804a9a7-b41b-4104-b9c9-141ea953020a","status":"not run","workflow":"musico-api"},
+        {"GUID":"f56c9009-8ad8-4236-b95d-cc6b2d0be0d6","status":"finished","workflow":"musico-api"},
+        {"GUID":"e1810518-f626-44cc-8636-644ee5da799b","status":"finished","workflow":"musico-api"}
+    ]
 }
 ```
 
@@ -97,14 +117,14 @@ Response:
 ```json
 {
     "status":"OK",
-    "workflow_id":"3794dfa3-48c3-48f8-ab50-0e9fc014cd64"
+    "GUID":"3794dfa3-48c3-48f8-ab50-0e9fc014cd64"
 }
 ```
 
 ### Get status
 
 ```bash
-curl 127.0.0.1:5000/get-status?workflow_id=$WORKFLOW_ID 
+curl 127.0.0.1:5000/get-status?GUID=$GUID 
 ```
 
 Response if the job is still running:
@@ -130,7 +150,7 @@ Response if the job is finished:
 ### Get results
 
 ```bash
-curl 127.0.0.1:5000/get-results?workflow_id=$WORKFLOW_ID --output file.zip
+curl 127.0.0.1:5000/get-results?GUID=$GUID --output file.zip
 ```
 
 Response:
@@ -142,5 +162,35 @@ Response:
 
 ```
 
+### Stop workflow
 
+Terminates execution of a running workflow.
 
+```bash
+curl -d '{"GUID":"3794dfa3-48c3-48f8-ab50-0e9fc014cd64"}' -H "Content-Type:application/json" -X POST 127.0.0.1:5000/stop-workflow
+```
+
+Response:
+
+```json
+{
+    "success": true,
+    "message": "Workflow terminated."
+}
+```
+
+### Delete workflow
+
+Deletes all files of the created workflow (only if the workflow is not active).
+
+```bash
+curl -d '{"GUID":"3794dfa3-48c3-48f8-ab50-0e9fc014cd64"}' -H "Content-Type:application/json" -X POST 127.0.0.1:5000/delete-workflow
+```
+
+Response:
+
+```json
+{
+    "success": true
+}
+```

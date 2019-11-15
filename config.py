@@ -1,6 +1,8 @@
 CWL="./workflows/cwl"
-TOIL="./workflows/toil"
+TOIL="./../cloud-workflows/toil"
 
 RESULTS = "./results"
-RUNNING_WORKFLOWS = "./runnning"
+RUNNING_WORKFLOWS = "./running"
 INPUTS = "./inputs"
+
+DATABASE = "workflows"

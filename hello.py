@@ -1,6 +1,6 @@
 from flask import Flask, request, send_file
 from markupsafe import escape
-import os, time, subprocess, glob, uuid, config, zipfile, sqlite3
+import os, time, subprocess, glob, uuid, config, zipfile, sqlite3, shutil, signal, threading, multiprocessing, psutil
 
 
 app = Flask(__name__)
@@ -11,6 +11,29 @@ def index():
     return {'status': 'OK',
             'your_request':req_data}
 
+
+def check_pid(pid):
+    try:
+        os.kill(pid, 0)
+        
+        if (psutil.Process(pid).status() == psutil.STATUS_ZOMBIE):
+            return False
+
+        return True
+    except OSError:
+        return False
+
+def get_wf_status(pid):
+    if (pid == None):
+        return "not run"
+    if (pid<0):
+        return "terminated"
+    
+    if (check_pid(pid)):
+        return "running"
+    
+    return "finished"
+    
 @app.route('/get-workflows', methods=['POST'])
 def get_all_workflows():
     folders_cwl = [f.split('/')[-2] for f in glob.glob(config.CWL  + "**/")]
@@ -24,13 +47,30 @@ def get_all_workflows():
         }
     }
 
+@app.route('/get-created-workflows', methods=["GET"])
+def get_created_workflows():
+    conn = sqlite3.connect(config.DATABASE)
+    c = conn.cursor()
+    c.execute('SELECT * FROM workflows')
+    rows = c.fetchall()
+    wfs = list()
+    for row in rows:
+        wf = dict()
+        wf['workflow'] = row[2]
+        wf['GUID'] = row[0]
+        wf['status'] = get_wf_status(row[3])
+        wfs.append(wf)
+    
+    return {
+        "workflows":wfs
+    }
+
 @app.route('/create-workflow', methods=['POST'])
 def create_wf():
     req_data = dict(request.form)
     yaml_field = 'yaml'
     zip_field = 'input_zip'
-    conn = sqlite3.connect('workflows')
-    print(request.files[yaml_field])
+    conn = sqlite3.connect(config.DATABASE)
     if yaml_field not in request.files or request.files[yaml_field].filename=='':
         return{
             'success': False,
@@ -47,7 +87,6 @@ def create_wf():
     inputs = request.files[zip_field]
 
     GUID = uuid.uuid4()
-    print(GUID)
     in_dir = os.path.join(os.path.abspath(config.INPUTS), str(GUID))
     os.mkdir(in_dir)
 
@@ -64,28 +103,49 @@ def create_wf():
         typeId = 2
     print(req_data)
     c = conn.cursor()
-    c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow'][0]+"')")
+    c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow'][0]+"',NULL)")
     conn.commit()
     return {
         'success': True,
-        'workflow_id':GUID
+        'GUID':GUID
     }
+
+
+def terminate(GUID, pid, flag, timeout = 0):
+    time.sleep(timeout)
+    os.kill(pid, signal.SIGINT)
+    conn = sqlite3.connect(config.DATABASE)
+    c = conn.cursor()
+
+    c.execute('UPDATE workflows SET PID='+str(flag)+' WHERE GUID="'+GUID+'"')
+
+    conn.commit()
+    conn.close()
 
 @app.route('/run-workflow', methods=['POST'])
 def run_workflow():
     req_data = request.get_json()
 
     GUID = req_data['GUID']
-    conn = sqlite3.connect('workflows')
+    conn = sqlite3.connect(config.DATABASE)
     c = conn.cursor()
     c.execute('SELECT * FROM workflows WHERE GUID="'+GUID+'"')
     row = c.fetchone()
     req_data['workflow'] = row[2]
     if (row == None):
+        conn.close()
         return {
             'success':False,
             "message": "Workflow doesn't exist."
         }
+    
+    if (not row[3] == None):
+        conn.close()
+        return {
+            "success": False,
+            "message": "Workflow already run."
+        }
+
     c.execute('SELECT Type_Name FROM Types where ID='+str(row[1]))
     row = c.fetchone()
     req_data['type'] = row[0]
@@ -101,26 +161,66 @@ def run_workflow():
         cwl_path = os.path.abspath(os.path.join(config.CWL,req_data['workflow'], 'workflow.cwl'))
         yaml_path = os.path.abspath(os.path.join(input_path, 'inputs.yaml'))
         
-        subprocess.Popen(['timeout',str(req_data['timelimit']),'cwltoil','--jobStore',os.path.abspath(job_store_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
+        process = subprocess.Popen(['cwltoil','--jobStore',os.path.abspath(job_store_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
+        pid = process.pid
+        
+        #th = threading.Thread(target=terminate(GUID,pid, -2, req_data['timelimit']))
+        #th.start()
+        c.execute('UPDATE workflows SET PID='+pid+' WHERE GUID="'+GUID+'"')
+
+        conn.commit()
     elif (req_data['type'] == 'toil'):
         toil_path = os.path.join(config.TOIL, req_data["workflow"] , 'main.py')
-        print('timeout '+str(req_data['timelimit'])+' python '+ toil_path+" " +job_store_path+" "+input_path+" "+out_dir)
+        #print('timeout '+str(req_data['timelimit'])+' python '+ toil_path+" " +job_store_path+" "+input_path+" "+out_dir)
         #subprocess.Popen(['timeout',str(req_data['timelimit']),'python', config.TOIL +"/"+req_data["workflow"]+"/main.py", job_store_path,input_path,out_dir])
 
-        subprocess.Popen(['timeout',str(req_data['timelimit']),'python', toil_path, job_store_path,input_path,out_dir])
+        process = subprocess.Popen(['python', toil_path, job_store_path,input_path,out_dir])
+        pid = process.pid
+        #th = threading.Thread(target=terminate(GUID,pid, -2, req_data['timelimit']))
+        #th.start()
+        c.execute('UPDATE workflows SET PID='+str(pid)+' WHERE GUID="'+GUID+'"')
+        conn.commit()
     else:
+        conn.close()
         return {'status':'FAILED' }
 
-    
+    conn.close()
     #Add Error Handling
     return {'status':'OK',
-             'workflow_id': str(GUID) }
+             'GUID': str(GUID) }
 
 
 @app.route('/get-status', methods=['GET'])
 def get_status():
-    GUID = request.args['workflow_id']
+    GUID = request.args['GUID']
+
+    conn = sqlite3.connect(config.DATABASE)
+    c = conn.cursor()
+    c.execute('SELECT * FROM workflows WHERE GUID="'+GUID+'"')
+    row = c.fetchone()
+    if (row == None):
+        return {
+            'success':False,
+            "message": "Workflow doesn't exist."
+        }
+    if (row[3] == None):
+        return {
+            'success':True,
+            "message": "Workflow has not been started yet."
+        }
+    if (row[3] == -1):
+        return {
+            'success': True,
+            "message": "Workflow has been terminated by user."
+        }
+    if (row[3] == -2):
+        return{
+            'success': True,
+            "message": "Workflow has been terminated due to timeout."
+        }
+
     job_store = os.path.abspath(os.path.join(config.RUNNING_WORKFLOWS, GUID))
+    
 
     message = subprocess.check_output(['toil', 'status', job_store])
 
@@ -132,14 +232,11 @@ def get_status():
 
 @app.route('/get-results', methods=['GET'])
 def get_results():
-    GUID = request.args['workflow_id']
+    GUID = request.args['GUID']
     out_dir = os.path.join(config.RESULTS, GUID)
     job_store = os.path.join(config.RUNNING_WORKFLOWS, GUID)
-    print('pozvao')
     if (os.path.isdir(out_dir)):
-        print("out")
         if (not os.path.isdir(job_store)):
-            print("job store")
             dir_name = os.path.join(config.RESULTS, GUID)
             zip_file = zipfile.ZipFile(dir_name+".zip", 'w')
 
@@ -149,7 +246,6 @@ def get_results():
                     zip_file.write(filePath)
 
             zip_file.close()
-            print(dir_name)
             return send_file(dir_name+".zip")
             
             
@@ -165,3 +261,93 @@ def get_results():
         }
 
     return {}
+
+
+@app.route('/stop-workflow', methods=['POST'])
+def stop_workflow():
+    req_data = request.get_json()
+    GUID = req_data['GUID']
+    conn = sqlite3.connect(config.DATABASE)
+    c = conn.cursor()
+    c.execute('SELECT * FROM workflows WHERE GUID="'+GUID+'"')
+    row = c.fetchone()
+
+    conn.close()
+
+    if (row == None):
+        return {
+            "success": False,
+            "message": "Workflow doesn't exist."
+        }
+    if (row[3] == None):
+        return {
+            "success": False,
+            "message": "Workflow is not running"
+        }
+    
+    if (row[3] == -1):
+        return {
+            'success': False,
+            "message": "Workflow has been terminated by user."
+        }
+    if (row[3] == -2):
+        return{
+            'success': False,
+            "message": "Workflow has been terminated due to timeout."
+        }
+
+    if (not check_pid(row[3])):
+        return {
+            "success": False,
+            "message": "Workflow is finished."
+        }
+    else:
+        terminate(GUID, row[3], -1)
+        return {
+            "success":True,
+            "message": "Workflow terminated."
+        }
+
+
+@app.route('/delete-workflow', methods=['POST'])
+def delete_wf():
+    req_data = request.get_json()
+
+    GUID = req_data['GUID']
+    conn = sqlite3.connect(config.DATABASE)
+    c = conn.cursor()
+    c.execute('SELECT * FROM workflows WHERE GUID="'+GUID+'"')
+    row = c.fetchone()
+
+    if (row == None):
+        conn.close()
+        return {
+            "success": False,
+            "message": "Workflow doesn't exist."
+        }
+    
+    if (row[3] > 0 and check_pid(row[3])):
+        conn.close()
+        return {
+            "success":False,
+            "message": "Workflow is running"
+        }
+
+    jobStore = os.path.abspath(os.path.join(config.RUNNING_WORKFLOWS,GUID))
+    input_dir = os.path.abspath(os.path.join(config.INPUTS, GUID))
+    output_dir = os.path.abspath(os.path.join(config.RESULTS, GUID))
+
+    if (os.path.isdir(jobStore)):
+        shutil.rmtree(jobStore)
+    if (os.path.isdir(input_dir)):
+        shutil.rmtree(input_dir)
+    if (os.path.isdir(output_dir)):
+        shutil.rmtree(output_dir)
+   
+    c.execute('DELETE FROM workflows WHERE GUID="'+GUID+'"')
+    conn.commit()
+    conn.close()
+
+    return {
+        "success":True
+    }
