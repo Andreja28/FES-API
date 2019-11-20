@@ -43,10 +43,10 @@ Response:
 ```
 
 
-### List of all workflows
+### List of all workflow templates
 
 ```bash
-curl -H "Content-Type: application/json" -X POST 127.0.0.1:5000/get-workflows
+curl -H "Content-Type: application/json" -X POST 127.0.0.1:5000/get-workflow-templates
 ```
 
 Response:
@@ -54,7 +54,7 @@ Response:
 ```json
 {
     "status":"OK",
-    "workflows":
+    "templates":
     {
         "cwl":["annotation","broad"],
         "toil":["musico-api","pakRunner"]
@@ -69,7 +69,7 @@ Response:
 This request specifies which workflow will be run and uploads two files (`.zip` containing all the input files for the workflow and `.yaml` file).
 
 ```bash
-curl -F 'yaml=@mnt/d/inputs.yaml' -F 'input_zip=@mnt/d/inputs.zip' -F 'type=toil' -F 'workflow=musico-api' 127.0.0.1:5000/create-workflow
+curl -F 'yaml=@mnt/d/inputs.yaml' -F 'input_zip=@mnt/d/inputs.zip' -F 'type=toil' -F 'workflow-template=musico-api' 127.0.0.1:5000/create-workflow
 
 ```
 
@@ -83,10 +83,10 @@ Response:
 ```
 
 
-### List of all created workflows
+### List of all workflows
 
 ```bash
-curl 127.0.0.1:5000/get-created-workflows
+curl 127.0.0.1:5000/get-workflows
 ```
 
 Response:
@@ -94,9 +94,9 @@ Response:
 ```json
 {
     "workflows":[
-        {"GUID":"c804a9a7-b41b-4104-b9c9-141ea953020a","status":"not run","workflow":"musico-api"},
-        {"GUID":"f56c9009-8ad8-4236-b95d-cc6b2d0be0d6","status":"finished","workflow":"musico-api"},
-        {"GUID":"e1810518-f626-44cc-8636-644ee5da799b","status":"finished","workflow":"musico-api"}
+        {"GUID":"c804a9a7-b41b-4104-b9c9-141ea953020a","status":"not run","workflow-template":"musico-api"},
+        {"GUID":"f56c9009-8ad8-4236-b95d-cc6b2d0be0d6","status":"finished","workflow-template":"musico-api"},
+        {"GUID":"e1810518-f626-44cc-8636-644ee5da799b","status":"finished","workflow-template":"musico-api"}
     ]
 }
 ```
@@ -181,7 +181,7 @@ Response:
 
 ### Delete workflow
 
-Deletes all files of the created workflow (only if the workflow is not active).
+Deletes all files of the workflow (only if the workflow is not active).
 
 ```bash
 curl -d '{"GUID":"3794dfa3-48c3-48f8-ab50-0e9fc014cd64"}' -H "Content-Type:application/json" -X POST 127.0.0.1:5000/delete-workflow

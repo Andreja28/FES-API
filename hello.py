@@ -34,21 +34,21 @@ def get_wf_status(pid):
     
     return "finished"
     
-@app.route('/get-workflows', methods=['POST'])
-def get_all_workflows():
+@app.route('/get-workflow-templates', methods=['POST'])
+def get_workflow_templates():
     folders_cwl = [f.split('/')[-2] for f in glob.glob(config.CWL  + "**/")]
 
     folders_toil = [f.split('/')[-2] for f in glob.glob(config.TOIL  + "**/")]
     return {
         "status": 'OK',
-        "workflows": {
+        "templates": {
             "cwl": folders_cwl,
             "toil": folders_toil
         }
     }
 
-@app.route('/get-created-workflows', methods=["GET"])
-def get_created_workflows():
+@app.route('/get-workflows', methods=["GET"])
+def get_workflows():
     conn = sqlite3.connect(config.DATABASE)
     c = conn.cursor()
     c.execute('SELECT * FROM workflows')
@@ -56,7 +56,7 @@ def get_created_workflows():
     wfs = list()
     for row in rows:
         wf = dict()
-        wf['workflow'] = row[2]
+        wf['workflow-template'] = row[2]
         wf['GUID'] = row[0]
         wf['status'] = get_wf_status(row[3])
         wfs.append(wf)
@@ -103,7 +103,7 @@ def create_wf():
         typeId = 2
     print(req_data)
     c = conn.cursor()
-    c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow'][0]+"',NULL)")
+    c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template'][0]+"',NULL)")
     conn.commit()
     return {
         'success': True,
