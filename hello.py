@@ -200,7 +200,7 @@ def run_workflow():
             
             #th = threading.Thread(target=terminate(GUID,pid, -2, req_data['timelimit']))
             #th.start()
-            c.execute('UPDATE workflows SET PID='+pid+' WHERE GUID="'+GUID+'"')
+            c.execute('UPDATE workflows SET PID='+str(pid)+' WHERE GUID="'+GUID+'"')
 
             conn.commit()
         elif (req_data['type'] == 'toil'):
@@ -229,7 +229,7 @@ def run_workflow():
 @app.route('/get-status', methods=['GET'])
 def get_status():
     GUID = request.args['GUID']
-    if 'GUID' not in req_data.keys():
+    if GUID is None:
         return{
             "success": False,
             "message": "GUID field not set."
@@ -296,8 +296,9 @@ def get_results():
 
                 for root, directories, files in os.walk(dir_name):
                     for filename in files:
+                        print(filename)
                         filePath = os.path.join(root, filename)
-                        zip_file.write(filePath)
+                        zip_file.write(filePath, filename)
 
                 zip_file.close()
                 return send_file(dir_name+".zip")
