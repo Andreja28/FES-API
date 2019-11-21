@@ -68,6 +68,10 @@ Response:
 
 This request specifies which workflow will be run and uploads two files (`.zip` containing all the input files for the workflow and `.yaml` file).
 
+`type` field must be either `cwl` or `toil`
+`workflow-template` field specifies the template from which the workflow will be created
+
+Creating workflow from `toil` template:
 ```bash
 curl -F 'yaml=@mnt/d/inputs.yaml' -F 'input_zip=@mnt/d/inputs.zip' -F 'type=toil' -F 'workflow-template=musico-api' 127.0.0.1:5000/create-workflow
 
@@ -82,6 +86,21 @@ Response:
 }
 ```
 
+
+Creating workflow from `cwl` template:
+```bash
+curl -F 'yaml=@mnt/d/inputs.yaml' -F 'input_zip=@mnt/d/inputs.zip' -F 'type=cwl' -F 'workflow-template=unzip-cwl' 127.0.0.1:5000/create-workflow
+
+```
+
+Response:
+
+```json
+{
+    "succcess": true,
+    "GUID":"94506c1d-57cf-4268-83c1-f80b0c7e6c1d"
+}
+```
 
 ### List of all workflows
 
