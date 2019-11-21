@@ -116,8 +116,7 @@ Response:
 
 ```json
 {
-    "status":"OK",
-    "GUID":"3794dfa3-48c3-48f8-ab50-0e9fc014cd64"
+    "success": true
 }
 ```
 
