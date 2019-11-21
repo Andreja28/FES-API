@@ -90,8 +90,8 @@ def create_wf():
                 "success":False,
                 "message": "type field not set"
             }
-        
-        if req_data['type'] != 'toil' and req_data['type'] != 'cwl':
+            
+        if not (req_data['type'][0] == 'toil' or req_data['type'][0] == 'cwl'):
             return{
                 "success": False,
                 "message": "type field is not 'toil' or 'cwl'"
