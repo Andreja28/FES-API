@@ -1,3 +1,7 @@
 venv
 *.pyc
 .vscode/
+inputs/
+results/
+running/
+tml/

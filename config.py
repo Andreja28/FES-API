@@ -1,4 +1,4 @@
-CWL="./workflows/cwl"
+CWL="./../cloud-workflows/cwl"
 TOIL="./../cloud-workflows/toil"
 
 RESULTS = "./results"

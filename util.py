@@ -13,7 +13,7 @@ def check_pid(pid):
 
 def get_wf_status(pid):
     if (pid == None):
-        return "not run"
+        return "not run or doesn't exist"
     if (pid<0):
         return "terminated"
     
@@ -41,4 +41,7 @@ def get_wf_pid(GUID):
     row = c.fetchone()
 
     conn.close()
+    if (row is None):
+        return None
+
     return row[3]

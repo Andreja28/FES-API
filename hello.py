@@ -70,14 +70,14 @@ def create_wf():
                 'success': False,
                 'message': 'Yaml file not selected.'
             }
-    
+        '''
         if zip_field not in request.files or request.files[zip_field].filename=='':
             return{
                 'success': False,
                 'message': 'Zip with input files not selected.'
             }
+        '''
         
-        print(req_data)
 
         if ('workflow-template' not in req_data.keys()):
             return{
@@ -98,7 +98,8 @@ def create_wf():
             }
 
         yaml = request.files[yaml_field]
-        inputs = request.files[zip_field]
+        if zip_field in request.files:
+            inputs = request.files[zip_field]
 
         GUID = uuid.uuid4()
         in_dir = os.path.join(os.path.abspath(config.INPUTS), str(GUID))
@@ -111,11 +112,13 @@ def create_wf():
 
 
         yaml.save(os.path.join(in_dir, 'inputs.yaml'))
-        inputs.save(os.path.join(in_dir, 'inputs.zip'))
+        if zip_field in request.files:
+            inputs.save(os.path.join(in_dir, 'inputs.zip'))
 
         try:
-            with zipfile.ZipFile(os.path.join(in_dir, 'inputs.zip'), 'r') as zip_ref:
-                zip_ref.extractall(in_dir)
+            if zip_field in request.files:
+                with zipfile.ZipFile(os.path.join(in_dir, 'inputs.zip'), 'r') as zip_ref:
+                    zip_ref.extractall(in_dir)
         except:
             shutil.rmtree(in_dir)
             return{
@@ -289,7 +292,9 @@ def get_results():
     out_dir = os.path.join(config.RESULTS, GUID)
     job_store = os.path.join(config.RUNNING_WORKFLOWS, GUID)
     if (os.path.isdir(out_dir)):
+        print(util.get_wf_status(util.get_wf_pid(GUID)))
         if (util.get_wf_status(util.get_wf_pid(GUID)) == 'finished'):
+            print(util.get_wf_status(util.get_wf_pid(GUID)))
             try:
                 dir_name = os.path.join(config.RESULTS, GUID)
                 zip_file = zipfile.ZipFile(dir_name+".zip", 'w')
