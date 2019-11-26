@@ -45,3 +45,12 @@ def get_wf_pid(GUID):
         return None
 
     return row[3]
+
+def get_wf(GUID):
+    conn = sqlite3.connect(config.DATABASE)
+    c = conn.cursor()
+    c.execute('SELECT * FROM workflows WHERE GUID="'+GUID+'"')
+    row = c.fetchone()
+
+    conn.close()
+    return row

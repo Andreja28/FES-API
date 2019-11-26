@@ -290,11 +290,8 @@ def get_results():
             "message": "GUID field not set."
         }
     out_dir = os.path.join(config.RESULTS, GUID)
-    job_store = os.path.join(config.RUNNING_WORKFLOWS, GUID)
     if (os.path.isdir(out_dir)):
-        print(util.get_wf_status(util.get_wf_pid(GUID)))
         if (util.get_wf_status(util.get_wf_pid(GUID)) == 'finished'):
-            print(util.get_wf_status(util.get_wf_pid(GUID)))
             try:
                 dir_name = os.path.join(config.RESULTS, GUID)
                 zip_file = zipfile.ZipFile(dir_name+".zip", 'w')
@@ -438,3 +435,98 @@ def delete_wf():
             "success": False,
             "message": "Server error."
         }
+
+@app.route('/download-workflow', methods=['GET'])
+def download_wf():
+    try:
+        GUID = request.args['GUID']
+        if request.args['GUID'] == None:
+            return{
+                "success": False,
+                "message": "GUID field not set."
+            }
+        
+        wf = util.get_wf(GUID)
+        if (wf is None):
+            return{
+                "success":False,
+                "message": "Workflow doesn't exist."
+            }
+        
+        out_dir = os.path.join(config.RESULTS, GUID)
+
+        wf_dir = ""
+        if (wf[1] == 1):
+            wf_dir = os.path.join(config.CWL,wf[2])
+        elif (wf[1] == 2):
+            wf_dir = os.path.join(config.TOIL,wf[2])
+        else:
+            return{
+                "success":False,
+                "message": "Server error."
+            }
+        
+        in_dir = os.path.join(config.INPUTS, GUID)
+        zip_wf = zipfile.ZipFile(wf[2]+".zip", 'w')
+
+        execute_path = ""
+        for root, directories, files in os.walk(wf_dir):
+            execute_path = root
+            for filename in files:
+                filePath = os.path.join(root,filename)
+
+                zipFilePath = "./wf/"+filePath.split(root)[1]
+                zip_wf.write(filePath, zipFilePath)
+        
+        input_path = ""
+        for root,directories,files in os.walk(in_dir):
+            input_path = root
+            for filename in files:
+                filePath = os.path.join(root, filename)
+                zipFilePath = "./inputs/"+filePath.split(root)[1]
+                zip_wf.write(filePath, zipFilePath)
+        
+        f = open('start.sh','w')
+        f.write("mkdir outputs\n")
+        f.write("cd outputs\n")
+        command = ""
+        if (wf[1] == 1):
+            execute_file = os.path.join('..','wf', 'workflow.cwl')
+            input_file = os.path.join('..','inputs', 'inputs.yaml')
+            command = command+"cwltoil "
+            command = command+execute_file+" "+input_file
+        elif (wf[1] == 2):
+            execute_file = os.path.join('wf', 'main.py')
+            input_file = os.path.join('inputs', 'inputs.yaml')
+            command = command+"python "
+            command = command+execute_file+" . "+input_file+ " ."
+
+        f.write(command)
+        f.close()
+
+        zip_wf.write('start.sh')
+
+        
+        if (os.path.isdir(out_dir)):
+            if (util.get_wf_status(util.get_wf_pid(GUID)) == 'finished'):
+                
+                zip_file = zipfile.ZipFile(wf[2]+"-out.zip", 'w')
+                for root, directories, files in os.walk(out_dir):
+                    for filename in files:
+                        filePath = os.path.join(root, filename)
+                        zip_file.write(filePath, filename)
+
+                zip_file.close()
+                zip_wf.write(zip_file.filename)
+                os.remove(zip_file.filename)
+                    
+        zip_wf.close()
+        return send_file(zip_wf.filename)
+    except:
+        return {
+            "success": False,
+            "message": "Server error."
+        }
+    
+
+            
