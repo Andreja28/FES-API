@@ -180,6 +180,25 @@ Response:
 
 ```
 
+### Download workflow
+
+Downloads `zip` file that containes the entire workflow (**workflow-template** from which the workflow is created, **inputs** for the workflow and **zipped results** if the workflow has already been run). Upon download user will be able to run workflow locally, either manually or using the script provided in the downloaded `zip`.
+
+
+```bash
+curl 127.0.0.1:5000/download-workflow?GUID=$GUID --output file.zip
+```
+
+Response:
+
+```bash
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   610  100   610    0     0   148k      0 --:--:-- --:--:-- --:--:--  148k
+
+
+```
+
 ### Stop workflow
 
 Terminates execution of a running workflow.
@@ -212,3 +231,5 @@ Response:
     "success": true
 }
 ```
+
+
