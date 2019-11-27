@@ -66,11 +66,18 @@ Response:
 
 ### Create workflow
 
-This request specifies which workflow will be run and uploads two files (`.zip` containing all the input files for the workflow and `.yaml` file).
 
-`type` field must be either `cwl` or `toil`
-`workflow-template` field specifies the template from which the workflow will be created
-`metadata` field specifies some description of the workflow that is being created
+
+Parameters:
+
+* `type` - field must be either `cwl` or `toil`
+* `workflow-template` - field specifies the template from which the workflow will be created
+* `metadata` (optional) - field specifies some description of the workflow that is being created
+
+This request specifies which workflow will be run and uploads two files:
+
+* `yaml` - `.yaml` file that contains input bindings for the specified workflow
+* `input_zip` (optional) - `.zip` file containing all the input files for the workflow if neccessary
 
 Creating workflow from `toil` template:
 ```bash
