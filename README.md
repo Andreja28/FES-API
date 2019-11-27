@@ -70,6 +70,7 @@ This request specifies which workflow will be run and uploads two files (`.zip` 
 
 `type` field must be either `cwl` or `toil`
 `workflow-template` field specifies the template from which the workflow will be created
+`metadata` field specifies some description of the workflow that is being created
 
 Creating workflow from `toil` template:
 ```bash
