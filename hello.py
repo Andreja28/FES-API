@@ -39,10 +39,43 @@ def get_workflows():
             wf['workflow-template'] = row[2]
             wf['GUID'] = row[0]
             wf['status'] = util.get_wf_status(row[3])
+            wf['metadata'] = row[4]
             wfs.append(wf)
         return {
             "success":True,
             "workflows":wfs
+        }
+    except:
+        return {
+            "success":False,
+            "message":"Server error."
+        }
+
+@app.route('/get-workflow-info', methods=["GET"])
+def get_workflow_info():
+
+    GUID = request.args['GUID']
+
+    if GUID is None:
+        return{
+            "success": False,
+            "message": "GUID field not set."
+        }
+
+    try:
+        conn = sqlite3.connect(config.DATABASE)
+        c = conn.cursor()
+        c.execute("SELECT * FROM workflows where GUID='"+GUID+"'")
+        row = c.fetchone()
+                
+        wf = dict()
+        wf['workflow-template'] = row[2]
+        wf['GUID'] = row[0]
+        wf['status'] = util.get_wf_status(row[3])
+        wf['metadata'] = row[4]
+        return {
+            "success":True,
+            "workflow":wf
         }
     except:
         return {
@@ -130,9 +163,20 @@ def create_wf():
             typeId = 1
         else:
             typeId = 2
-    
+        print("blabla")
+        if ('metadata' in req_data.keys() and req_data['metadata'] is not None):
+            print("tacno")
+            metadata = req_data['metadata'][0]
+        else:
+            print("netacno")
+            metadata = None
+        print("pre kona")
         c = conn.cursor()
-        c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template'][0]+"',NULL)")
+        print("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template'][0]+"',NULL, '"+str(metadata)+"')")
+        if (metadata is not None):
+            c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template'][0]+"',NULL, '"+metadata+"')")
+        else:
+            c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template'][0]+"',NULL, NULL)")
         conn.commit()
         return {
             'success': True,
@@ -144,7 +188,6 @@ def create_wf():
             "success": False,
             "message": "Server error."
         }
-
 
 
 @app.route('/run-workflow', methods=['POST'])

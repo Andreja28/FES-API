@@ -87,7 +87,7 @@ Response:
 ```
 
 
-Creating workflow from `cwl` template:
+Creating workflow from `cwl` template (this template is located [here](https://github.com/Andreja28/cloud-workflows/tree/master/cwl/unzip-cwl)):
 ```bash
 curl -F 'yaml=@mnt/d/inputs.yaml' -F 'input_zip=@mnt/d/inputs.zip' -F 'type=cwl' -F 'workflow-template=unzip-cwl' 127.0.0.1:5000/create-workflow
 
@@ -113,12 +113,36 @@ Response:
 ```json
 {
     "workflows":[
-        {"GUID":"c804a9a7-b41b-4104-b9c9-141ea953020a","status":"not run","workflow-template":"musico-api"},
-        {"GUID":"f56c9009-8ad8-4236-b95d-cc6b2d0be0d6","status":"finished","workflow-template":"musico-api"},
-        {"GUID":"e1810518-f626-44cc-8636-644ee5da799b","status":"finished","workflow-template":"musico-api"}
+        {"GUID":"c804a9a7-b41b-4104-b9c9-141ea953020a","status":"not run","workflow-template":"musico-api", "metadata":"Some metadata"},
+        {"GUID":"f56c9009-8ad8-4236-b95d-cc6b2d0be0d6","status":"finished","workflow-template":"musico-api", "metadata":"Some metadata"},
+        {"GUID":"e1810518-f626-44cc-8636-644ee5da799b","status":"finished","workflow-template":"musico-api", "metadata":"Some metadata"}
     ]
 }
 ```
+
+### Get workflow info
+
+
+
+```bash
+curl 127.0.0.1:5000/get-workflow?GUID=$GUID
+```
+
+Response:
+
+```json
+{
+    "success":true,
+    "workflow":
+    {
+        "GUID":"d0ecf151-b358-45ad-9392-3fd124605116",
+        "metadata":"Some metadata",
+        "status":"not run or doesn't exist",
+        "workflow-template":"echo-cwl"
+    }
+}
+```
+
 
 ### Run workflow
 
