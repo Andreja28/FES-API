@@ -154,13 +154,10 @@ Response:
 
 ### Run workflow
 
-This request takes 3 fields as an input: 
-* `workflow` - specifies the name of the workflow
-* `type` - specifies the type of the workflow (either `cwl` or `toil`)
-* `timelimit` - specifies maximum execution time of the workflow in seconds. If the workflow exceeds this time limit it will be shutdown.
+This request takes only `GUID` as input:
 
 ```bash
-curl -d '{"GUID":"3794dfa3-48c3-48f8-ab50-0e9fc014cd64", "timelimit":3000}' -H "Content-Type:application/json" -X POST 127.0.0.1:5000/run-workflow
+curl -d '{"GUID":"3794dfa3-48c3-48f8-ab50-0e9fc014cd64"}' -H "Content-Type:application/json" -X POST 127.0.0.1:5000/run-workflow
 ```
 
 Response:
@@ -187,7 +184,7 @@ Response if the job is still running:
 
 ```
 
-Response if the job is finished:
+Response if the job is finished or if it's not yet run:
 
 ```json
 {
@@ -214,11 +211,11 @@ Response:
 
 ### Download workflow
 
-Downloads `zip` file that containes the entire workflow (**workflow-template** from which the workflow is created, **inputs** for the workflow and **zipped results** if the workflow has already been run). Upon download user will be able to run workflow locally, either manually or using the script provided in the downloaded `zip`.
+Downloads `zip` file that containes the entire workflow (**workflow-template** from which the workflow is created, **inputs** for the workflow and **zipped results** if the workflow has already been run). Upon download user will be able to run workflow locally, either manually or using the bash script provided in the downloaded `zip`.
 
 
 ```bash
-curl 127.0.0.1:5000/download-workflow?GUID=$GUID --output file.zip
+curl 127.0.0.1:5000/download-workflow?GUID=$GUID --output workflow.zip
 ```
 
 Response:
