@@ -130,6 +130,21 @@ def create_wf():
                 "message": "type field is not 'toil' or 'cwl'"
             }
 
+        cwl_templates = [f.split('/')[-2] for f in glob.glob(config.CWL  + "**/")]
+
+        toil_templates = [f.split('/')[-2] for f in glob.glob(config.TOIL  + "**/")]
+
+        if (req_data['type'][0] == 'toil'):
+            templates = [f.split('/')[-2] for f in glob.glob(config.TOIL  + "**/")]
+        else:
+            templates = [f.split('/')[-2] for f in glob.glob(config.CWL  + "**/")]
+        
+        if not (req_data['workflow-template'][0] in templates):
+            return {
+                "success": False,
+                "message": "Workflow template doesn't exist."
+            }
+
         yaml = request.files[yaml_field]
         if zip_field in request.files:
             inputs = request.files[zip_field]
@@ -163,16 +178,13 @@ def create_wf():
             typeId = 1
         else:
             typeId = 2
-        print("blabla")
         if ('metadata' in req_data.keys() and req_data['metadata'] is not None):
-            print("tacno")
             metadata = req_data['metadata'][0]
         else:
-            print("netacno")
             metadata = None
-        print("pre kona")
+        
         c = conn.cursor()
-        print("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template'][0]+"',NULL, '"+str(metadata)+"')")
+        
         if (metadata is not None):
             c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template'][0]+"',NULL, '"+metadata+"')")
         else:
@@ -341,7 +353,6 @@ def get_results():
 
                 for root, directories, files in os.walk(dir_name):
                     for filename in files:
-                        print(filename)
                         filePath = os.path.join(root, filename)
                         zip_file.write(filePath, filename)
 
