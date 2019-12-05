@@ -16,7 +16,7 @@ Response:
     "status":"OK",
     "templates":
     {
-        "cwl":["annotation","broad","c-cwl"],
+        "cwl":["annotation","broad","merge-cwl"],
         "toil":["musico-api","pakRunner"]
     }
 }
@@ -41,10 +41,10 @@ This request specifies which workflow will be run and uploads two files:
 
 
 
-Creating workflow from `c-cwl` template (this template is located [here](https://github.com/Andreja28/cloud-workflows/tree/master/cwl/c-cwl)). This workflow has two nodes (workflow requires two files for it to run - `pi.c` and `in.txt` and they need to be zipped). One for compiling the code and the other for running it:
+Creating workflow from `merge-cwl` template (this template is located [here](https://github.com/Andreja28/cloud-workflows/tree/master/cwl/merge-cwl)). This workflow has two nodes (as an input it takes 3 files [2 `.txt.` files and one bash script]). First node merges the two files into one, and the second node invokes the bash script ( takes merged file as an argument ) and counts the number of lines in the file (the script has timeout set for 15s for testing purposes).
 
 ```bash
-curl -F 'yaml=@mnt/d/inputs.yaml' -F 'input_zip=@mnt/d/inputs.zip' -F 'type=cwl' -F 'workflow-template=c-cwl' -F 'metadata=Some metadata' cluster2.bioirc.ac.rs:5000/create-workflow
+curl -F 'yaml=@mnt/d/inputs.yaml' -F 'input_zip=@mnt/d/inputs.zip' -F 'type=cwl' -F 'workflow-template=merge-cwl' -F 'metadata=Some metadata' cluster2.bioirc.ac.rs:5000/create-workflow
 
 ```
 
@@ -77,7 +77,7 @@ Response:
         "GUID":"94506c1d-57cf-4268-83c1-f80b0c7e6c1d",
         "metadata":"Some metadata",
         "status":"not run or doesn't exist",
-        "workflow-template":"c-cwl"
+        "workflow-template":"merge-cwl"
     }
 }
 ```
