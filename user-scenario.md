@@ -43,6 +43,8 @@ This request specifies which workflow will be run and uploads two files:
 
 Creating workflow from `merge-cwl` template (this template is located [here](https://github.com/Andreja28/cloud-workflows/tree/master/cwl/merge-cwl)). This workflow has two nodes (as an input it takes 3 files [2 `.txt.` files and one bash script]). First node merges the two files into one, and the second node invokes the bash script ( takes merged file as an argument ) and counts the number of lines in the file (the script has timeout set for 15s for testing purposes).
 
+![merge-cwl workflow](https://github.com/Andreja28/cloud-workflows/blob/master/cwl/merge-cwl/merge-cwl.PNG)
+
 ```bash
 curl -F 'yaml=@mnt/d/inputs.yaml' -F 'input_zip=@mnt/d/inputs.zip' -F 'type=cwl' -F 'workflow-template=merge-cwl' -F 'metadata=Some metadata' cluster2.bioirc.ac.rs:5000/create-workflow
 
