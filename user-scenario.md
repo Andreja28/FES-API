@@ -6,7 +6,7 @@ List of all existing templates can be seen with the following request:
 ### List of all workflow templates
 
 ```bash
-curl -H "Content-Type: application/json" -X POST 127.0.0.1:5000/get-workflow-templates
+curl -H "Content-Type: application/json" -X POST cluster2.bioirc.ac.rs:5000/get-workflow-templates
 ```
 
 Response:
@@ -44,7 +44,7 @@ This request specifies which workflow will be run and uploads two files:
 Creating workflow from `c-cwl` template (this template is located [here](https://github.com/Andreja28/cloud-workflows/tree/master/cwl/c-cwl)). This workflow has two nodes (workflow requires two files for it to run - `pi.c` and `in.txt` and they need to be zipped). One for compiling the code and the other for running it:
 
 ```bash
-curl -F 'yaml=@mnt/d/inputs.yaml' -F 'input_zip=@mnt/d/inputs.zip' -F 'type=cwl' -F 'workflow-template=c-cwl' -F 'metadata=Some metadata' 127.0.0.1:5000/create-workflow
+curl -F 'yaml=@mnt/d/inputs.yaml' -F 'input_zip=@mnt/d/inputs.zip' -F 'type=cwl' -F 'workflow-template=c-cwl' -F 'metadata=Some metadata' cluster2.bioirc.ac.rs:5000/create-workflow
 
 ```
 
@@ -64,7 +64,7 @@ Once the workflow is created user can get some general info about the workflow (
 
 
 ```bash
-curl 127.0.0.1:5000/get-workflow?GUID=94506c1d-57cf-4268-83c1-f80b0c7e6c1d
+curl cluster2.bioirc.ac.rs:5000/get-workflow-info?GUID=94506c1d-57cf-4268-83c1-f80b0c7e6c1d
 ```
 
 Response:
@@ -90,7 +90,7 @@ It is time for running the workflow:
 This request takes only `GUID` as input:
 
 ```bash
-curl -d '{"GUID":"94506c1d-57cf-4268-83c1-f80b0c7e6c1d"}' -H "Content-Type:application/json" -X POST 127.0.0.1:5000/run-workflow
+curl -d '{"GUID":"94506c1d-57cf-4268-83c1-f80b0c7e6c1d"}' -H "Content-Type:application/json" -X POST cluster2.bioirc.ac.rs:5000/run-workflow
 ```
 
 Response:
@@ -107,7 +107,7 @@ If the workflow is running it is possible to get it's status with the following 
 ### Get status
 
 ```bash
-curl 127.0.0.1:5000/get-status?GUID=94506c1d-57cf-4268-83c1-f80b0c7e6c1d
+curl cluster2.bioirc.ac.rs:5000/get-status?GUID=94506c1d-57cf-4268-83c1-f80b0c7e6c1d
 ```
 
 Response if the job is still running:
@@ -138,7 +138,7 @@ If for some reason it is required to stop the running workflow it is possible wi
 Terminates execution of a running workflow.
 
 ```bash
-curl -d '{"GUID":"94506c1d-57cf-4268-83c1-f80b0c7e6c1d"}' -H "Content-Type:application/json" -X POST 127.0.0.1:5000/stop-workflow
+curl -d '{"GUID":"94506c1d-57cf-4268-83c1-f80b0c7e6c1d"}' -H "Content-Type:application/json" -X POST cluster2.bioirc.ac.rs:5000/stop-workflow
 ```
 
 Response:
@@ -155,7 +155,7 @@ When the workflow is finished successfully user can download results from the wo
 ### Get results
 
 ```bash
-curl 127.0.0.1:5000/get-results?GUID=94506c1d-57cf-4268-83c1-f80b0c7e6c1d --output file.zip
+curl cluster2.bioirc.ac.rs:5000/get-results?GUID=94506c1d-57cf-4268-83c1-f80b0c7e6c1d --output file.zip
 ```
 
 Response:
@@ -175,7 +175,7 @@ Downloads `zip` file that containes the entire workflow (**workflow-template** f
 
 
 ```bash
-curl 127.0.0.1:5000/download-workflow?GUID=94506c1d-57cf-4268-83c1-f80b0c7e6c1d --output workflow.zip
+curl cluster2.bioirc.ac.rs:5000/download-workflow?GUID=94506c1d-57cf-4268-83c1-f80b0c7e6c1d --output workflow.zip
 ```
 
 Response:
@@ -195,7 +195,7 @@ If the workflow is no longer needed and will no longer be used, user can delete 
 Deletes all files of the workflow (only if the workflow is not active).
 
 ```bash
-curl -d '{"GUID":"94506c1d-57cf-4268-83c1-f80b0c7e6c1d"}' -H "Content-Type:application/json" -X POST 127.0.0.1:5000/delete-workflow
+curl -d '{"GUID":"94506c1d-57cf-4268-83c1-f80b0c7e6c1d"}' -H "Content-Type:application/json" -X POST cluster2.bioirc.ac.rs:5000/delete-workflow
 ```
 
 Response:
