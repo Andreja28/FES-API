@@ -76,7 +76,7 @@ Response:
     {
         "GUID":"94506c1d-57cf-4268-83c1-f80b0c7e6c1d",
         "metadata":"Some metadata",
-        "status":"not run or doesn't exist",
+        "status":"Not run",
         "workflow-template":"merge-cwl"
     }
 }
@@ -120,11 +120,12 @@ Response if the job is still running:
 
 ```
 
-Response if the job is finished or if it's not yet run:
+Response if the job is finished or if it's not yet run (`status` field differs):
 
 ```json
 {
     "message":"No job store found.\n",
+    "status": "Finished", 
     "success":true
 }
 

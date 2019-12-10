@@ -67,6 +67,12 @@ def get_workflow_info():
         c = conn.cursor()
         c.execute("SELECT * FROM workflows where GUID='"+GUID+"'")
         row = c.fetchone()
+
+        if (row == None):
+            return{
+                "success": False,
+                "message": "Error"
+            }
                 
         wf = dict()
         wf['workflow-template'] = row[2]
@@ -297,31 +303,41 @@ def get_status():
         c = conn.cursor()
         c.execute('SELECT * FROM workflows WHERE GUID="'+GUID+'"')
         row = c.fetchone()
+            
         conn.close()
     except:
         return{
             "success": False,
-            "message": "Server error."
+            "message": "Server error.",
+            "status": "Error"
+
         }
     if (row == None):
-        return {
-            'success':False,
-            "message": "Workflow doesn't exist."
-        }
+        return{
+                "success": False,
+                "message": "Workflow doesn't exist",
+                "status": "Error"
+            }
+    
+    status = util.get_wf_status(row[3])
+
     if (row[3] == None):
         return {
             'success':True,
-            "message": "Workflow has not been started yet."
+            "message": "Workflow has not been started yet.",
+            "status": status
         }
     if (row[3] == -1):
         return {
             'success': True,
-            "message": "Workflow has been terminated by user."
+            "message": "Workflow has been terminated by user.",
+            "status": status
         }
     if (row[3] == -2):
         return{
             'success': True,
-            "message": "Workflow has been terminated due to timeout."
+            "message": "Workflow has been terminated due to timeout.",
+            "status": status
         }
 
     job_store = os.path.abspath(os.path.join(config.RUNNING_WORKFLOWS, GUID))
@@ -331,7 +347,8 @@ def get_status():
 
     return{
         "success": True,
-        "message": message
+        "message": message,
+        "status": status
     }
 
 

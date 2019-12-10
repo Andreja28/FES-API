@@ -13,14 +13,14 @@ def check_pid(pid):
 
 def get_wf_status(pid):
     if (pid == None):
-        return "not run or doesn't exist"
+        return "Not run"
     if (pid<0):
-        return "terminated"
+        return "Terminated"
     
     if (check_pid(pid)):
-        return "running"
+        return "Running"
     
-    return "finished"
+    return "Finished"
 
 
 def terminate(GUID, pid, flag, timeout = 0):
