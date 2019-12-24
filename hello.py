@@ -363,13 +363,15 @@ def get_results():
         }
     out_dir = os.path.join(config.RESULTS, GUID)
     if (os.path.isdir(out_dir)):
-        if (util.get_wf_status(util.get_wf_pid(GUID)) == 'finished'):
+        if (util.get_wf_status(util.get_wf_pid(GUID)) == 'Finished'):
             try:
                 dir_name = os.path.join(config.RESULTS, GUID)
                 zip_file = zipfile.ZipFile(dir_name+".zip", 'w')
 
                 for root, directories, files in os.walk(dir_name):
+                    directories[:] = [d for d in directories if d not in ['tmp']]
                     for filename in files:
+                        print(filename)
                         filePath = os.path.join(root, filename)
                         zip_file.write(filePath, filename)
 
@@ -579,10 +581,11 @@ def download_wf():
 
         
         if (os.path.isdir(out_dir)):
-            if (util.get_wf_status(util.get_wf_pid(GUID)) == 'finished'):
+            if (util.get_wf_status(util.get_wf_pid(GUID)) == 'Finished'):
                 
                 zip_file = zipfile.ZipFile(wf[2]+"-out.zip", 'w')
                 for root, directories, files in os.walk(out_dir):
+                    directories[:] = [d for d in directories if d not in ['tmp']]
                     for filename in files:
                         filePath = os.path.join(root, filename)
                         zip_file.write(filePath, filename)
