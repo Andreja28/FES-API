@@ -128,7 +128,7 @@ Response if the job is finished or if it's not yet run (`status` field differs):
 ```json
 {
     "message":"No job store found.\n",
-    "status": "FINISHED", 
+    "status": "FINISHED_OK", 
     "success": true
 }
 

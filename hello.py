@@ -366,7 +366,7 @@ def get_results():
         }
     out_dir = os.path.join(config.RESULTS, GUID)
     if (os.path.isdir(out_dir)):
-        if (util.get_wf_status(util.get_wf_pid(GUID), GUID) == 'FINISHED'):
+        if (util.get_wf_status(util.get_wf_pid(GUID), GUID) == 'FINISHED_OK'):
             try:
                 dir_name = os.path.join(config.RESULTS, GUID)
                 zip_file = zipfile.ZipFile(dir_name+".zip", 'w')
@@ -586,7 +586,7 @@ def download_wf():
 
         
         if (os.path.isdir(out_dir)):
-            if (util.get_wf_status(util.get_wf_pid(GUID), GUID) == 'FINISHED'):
+            if (util.get_wf_status(util.get_wf_pid(GUID), GUID) == 'FINISHED_OK'):
                 
                 zip_file = zipfile.ZipFile(wf[2]+"-out.zip", 'w')
                 for root, directories, files in os.walk(out_dir):

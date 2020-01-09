@@ -22,7 +22,15 @@ def get_wf_status(pid, guid):
     
     input_path = os.path.join(config.INPUTS,guid)
 
-    return "FINISHED"
+    dir_name = os.path.join(config.RESULTS, guid)
+
+    for root, directories, files in os.walk(dir_name):
+        directories[:] = [d for d in directories if d not in ['tmp']]
+        for filename in files:
+            print(filename)
+            return "FINISHED_OK"
+
+    return "FINISHED_ERROR"
 
 
 def terminate(GUID, pid, flag, timeout = 0):

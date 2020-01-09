@@ -122,8 +122,8 @@ Response:
 {
     "workflows":[
         {"GUID":"c804a9a7-b41b-4104-b9c9-141ea953020a","status":"NOT_YET_EXECUTED","workflow-template":"musico-api", "metadata":"Some metadata"},
-        {"GUID":"f56c9009-8ad8-4236-b95d-cc6b2d0be0d6","status":"FINISHED","workflow-template":"musico-api", "metadata":"Some metadata"},
-        {"GUID":"e1810518-f626-44cc-8636-644ee5da799b","status":"FINISHED","workflow-template":"musico-api", "metadata":"Some metadata"}
+        {"GUID":"f56c9009-8ad8-4236-b95d-cc6b2d0be0d6","status":"FINISHED_OK","workflow-template":"musico-api", "metadata":"Some metadata"},
+        {"GUID":"e1810518-f626-44cc-8636-644ee5da799b","status":"FINISHED_OK","workflow-template":"musico-api", "metadata":"Some metadata"}
     ]
 }
 ```
@@ -156,7 +156,8 @@ List of possible `status` field:
 * NOT_YET_EXECUTED
 * TERMINATED
 * RUNNING
-* FINISHED
+* FINISHED_OK
+* FINISHED_ERROR
 
 
 ### Run workflow
@@ -197,7 +198,7 @@ Response if the job is finished or if it's not yet run:
 ```json
 {
     "message":"No job store found.\n",
-    "status":"FINISHED",
+    "status":"FINISHED_OK",
     "success":true
 }
 
