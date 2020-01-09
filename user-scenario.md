@@ -78,7 +78,7 @@ Response:
     {
         "GUID":"94506c1d-57cf-4268-83c1-f80b0c7e6c1d",
         "metadata":"Some metadata",
-        "status":"Not run",
+        "status":"NOT_YET_EXECUTED",
         "workflow-template":"merge-cwl"
     }
 }
@@ -117,7 +117,7 @@ Response if the job is still running:
 ```json
 {
     "message":"Of the 2 jobs considered, there are 1 jobs with children, 1 jobs ready to run, 0 zombie jobs, 0 jobs with services, 0 services, and 0 jobs with log files currently in FileJobStore(/home/user/FES-API/running/94506c1d-57cf-4268-83c1-f80b0c7e6c1d).\n",
-    "status": "Runnning",
+    "status": "RUNNING",
     "success": true
 }
 
@@ -128,7 +128,7 @@ Response if the job is finished or if it's not yet run (`status` field differs):
 ```json
 {
     "message":"No job store found.\n",
-    "status": "Finished", 
+    "status": "FINISHED", 
     "success": true
 }
 

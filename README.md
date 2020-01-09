@@ -121,9 +121,9 @@ Response:
 ```json
 {
     "workflows":[
-        {"GUID":"c804a9a7-b41b-4104-b9c9-141ea953020a","status":"not run","workflow-template":"musico-api", "metadata":"Some metadata"},
-        {"GUID":"f56c9009-8ad8-4236-b95d-cc6b2d0be0d6","status":"finished","workflow-template":"musico-api", "metadata":"Some metadata"},
-        {"GUID":"e1810518-f626-44cc-8636-644ee5da799b","status":"finished","workflow-template":"musico-api", "metadata":"Some metadata"}
+        {"GUID":"c804a9a7-b41b-4104-b9c9-141ea953020a","status":"NOT_YET_EXECUTED","workflow-template":"musico-api", "metadata":"Some metadata"},
+        {"GUID":"f56c9009-8ad8-4236-b95d-cc6b2d0be0d6","status":"FINISHED","workflow-template":"musico-api", "metadata":"Some metadata"},
+        {"GUID":"e1810518-f626-44cc-8636-644ee5da799b","status":"FINISHED","workflow-template":"musico-api", "metadata":"Some metadata"}
     ]
 }
 ```
@@ -133,7 +133,7 @@ Response:
 
 
 ```bash
-curl 127.0.0.1:5000/get-workflow?GUID=$GUID
+curl 127.0.0.1:5000/get-workflow-info?GUID=$GUID
 ```
 
 Response:
@@ -145,7 +145,7 @@ Response:
     {
         "GUID":"d0ecf151-b358-45ad-9392-3fd124605116",
         "metadata":"Some metadata",
-        "status":"not run or doesn't exist",
+        "status":"NOT_YET_EXECUTED",
         "workflow-template":"echo-cwl"
     }
 }
@@ -179,6 +179,7 @@ Response if the job is still running:
 ```json
 {
     "message":"Of the 44 jobs considered, there are 31 jobs with children, 13 jobs ready to run, 0 zombie jobs, 0 jobs with services, 0 services, and 0 jobs with log files currently in FileJobStore(/home/user/FES-API/running/bc56c810-fc3a-456e-bdb8-5f9c134a03eb).\n",
+    "status":"RUNNING",
     "success":true
 }
 
@@ -189,6 +190,7 @@ Response if the job is finished or if it's not yet run:
 ```json
 {
     "message":"No job store found.\n",
+    "status":"FINISHED",
     "success":true
 }
 
