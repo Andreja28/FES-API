@@ -11,16 +11,18 @@ def check_pid(pid):
     except OSError:
         return False
 
-def get_wf_status(pid):
+def get_wf_status(pid, guid):
     if (pid == None):
-        return "Not run"
+        return "NOT_YET_EXECUTED"
     if (pid<0):
-        return "Terminated"
+        return "TERMINATED"
     
     if (check_pid(pid)):
-        return "Running"
+        return "RUNNING"
     
-    return "Finished"
+    input_path = os.path.join(config.INPUTS,guid)
+
+    return "FINISHED"
 
 
 def terminate(GUID, pid, flag, timeout = 0):

@@ -1,6 +1,6 @@
 from flask import Flask, request, send_file
 from markupsafe import escape
-import os, time, subprocess, glob, uuid, config, zipfile, sqlite3, shutil, signal, threading, multiprocessing, psutil
+import os, sys, time, subprocess, glob, uuid, config, zipfile, sqlite3, shutil, signal, threading, multiprocessing, psutil
 import util
 
 
@@ -38,7 +38,7 @@ def get_workflows():
             wf = dict()
             wf['workflow-template'] = row[2]
             wf['GUID'] = row[0]
-            wf['status'] = util.get_wf_status(row[3])
+            wf['status'] = util.get_wf_status(row[3], row[0])
             wf['metadata'] = row[4]
             wfs.append(wf)
         return {
@@ -77,7 +77,7 @@ def get_workflow_info():
         wf = dict()
         wf['workflow-template'] = row[2]
         wf['GUID'] = row[0]
-        wf['status'] = util.get_wf_status(row[3])
+        wf['status'] = util.get_wf_status(row[3], GUID)
         wf['metadata'] = row[4]
         return {
             "success":True,
@@ -259,6 +259,8 @@ def run_workflow():
             cwl_path = os.path.abspath(os.path.join(config.CWL,req_data['workflow'], 'workflow.cwl'))
             yaml_path = os.path.abspath(os.path.join(input_path, 'inputs.yaml'))
             
+            error_handle = os.path.abspath(os.path.join(input_path, 'error.txt'))
+
             process = subprocess.Popen(['cwltoil','--jobStore',os.path.abspath(job_store_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
             pid = process.pid
             
@@ -269,10 +271,11 @@ def run_workflow():
             conn.commit()
         elif (req_data['type'] == 'toil'):
             toil_path = os.path.join(config.TOIL, req_data["workflow"] , 'main.py')
+            error_handle = "2> "+os.path.abspath(os.path.join(input_path, 'error.txt'))
             #print('timeout '+str(req_data['timelimit'])+' python '+ toil_path+" " +job_store_path+" "+input_path+" "+out_dir)
             #subprocess.Popen(['timeout',str(req_data['timelimit']),'python', config.TOIL +"/"+req_data["workflow"]+"/main.py", job_store_path,input_path,out_dir])
 
-            process = subprocess.Popen(['python', toil_path, job_store_path,input_path,out_dir])
+            process = subprocess.Popen(['python', toil_path, job_store_path,input_path,out_dir, error_handle])
             pid = process.pid
             #th = threading.Thread(target=terminate(GUID,pid, -2, req_data['timelimit']))
             #th.start()
@@ -319,7 +322,7 @@ def get_status():
                 "status": "Error"
             }
     
-    status = util.get_wf_status(row[3])
+    status = util.get_wf_status(row[3], GUID)
 
     if (row[3] == None):
         return {
@@ -363,7 +366,7 @@ def get_results():
         }
     out_dir = os.path.join(config.RESULTS, GUID)
     if (os.path.isdir(out_dir)):
-        if (util.get_wf_status(util.get_wf_pid(GUID)) == 'Finished'):
+        if (util.get_wf_status(util.get_wf_pid(GUID), GUID) == 'FINISHED'):
             try:
                 dir_name = os.path.join(config.RESULTS, GUID)
                 zip_file = zipfile.ZipFile(dir_name+".zip", 'w')
@@ -539,6 +542,7 @@ def download_wf():
                 "message": "Server error."
             }
         
+
         in_dir = os.path.join(config.INPUTS, GUID)
         zip_wf = zipfile.ZipFile(wf[2]+".zip", 'w')
 
@@ -546,6 +550,7 @@ def download_wf():
         for root, directories, files in os.walk(wf_dir):
             execute_path = root
             for filename in files:
+                print(filename)
                 filePath = os.path.join(root,filename)
 
                 zipFilePath = "./wf/"+filePath.split(root)[1]
@@ -573,7 +578,7 @@ def download_wf():
             input_file = os.path.join('inputs', 'inputs.yaml')
             command = command+"python "
             command = command+execute_file+" . "+input_file+ " ."
-
+        
         f.write(command)
         f.close()
 
@@ -581,7 +586,7 @@ def download_wf():
 
         
         if (os.path.isdir(out_dir)):
-            if (util.get_wf_status(util.get_wf_pid(GUID)) == 'Finished'):
+            if (util.get_wf_status(util.get_wf_pid(GUID), GUID) == 'FINISHED'):
                 
                 zip_file = zipfile.ZipFile(wf[2]+"-out.zip", 'w')
                 for root, directories, files in os.walk(out_dir):
@@ -595,6 +600,7 @@ def download_wf():
                 os.remove(zip_file.filename)
                     
         zip_wf.close()
+        
         return send_file(zip_wf.filename)
     except:
         return {
