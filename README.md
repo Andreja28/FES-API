@@ -151,6 +151,13 @@ Response:
 }
 ```
 
+List of possible `status` field:
+
+* NOT_YET_EXECUTED
+* TERMINATED
+* RUNNING
+* FINISHED
+
 
 ### Run workflow
 
