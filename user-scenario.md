@@ -171,6 +171,23 @@ Response:
 
 ```
 
+### Get log file
+
+If the log file is created (workflow has been run):
+
+```bash
+curl cluster2.bioirc.ac.rs:5000/get-log?GUID=$GUID --output log.txt
+```
+
+Response:
+
+```bash
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 9350k  100 9350k    0     0  84.8M      0 --:--:-- --:--:-- --:--:-- 85.3M
+
+```
+
 User can also download the whole workflow including the results if they exist:
 
 ### Download workflow

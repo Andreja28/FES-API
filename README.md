@@ -219,6 +219,23 @@ Response:
 
 ```
 
+### Get log file
+
+If the log file is created (workflow has been run):
+
+```bash
+curl 127.0.0.1:5000/get-log?GUID=$GUID --output log.txt
+```
+
+Response:
+
+```bash
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 9350k  100 9350k    0     0  84.8M      0 --:--:-- --:--:-- --:--:-- 85.3M
+
+```
+
 ### Download workflow
 
 Downloads `zip` file that containes the entire workflow (**workflow-template** from which the workflow is created, **inputs** for the workflow and **zipped results** if the workflow has already been run). Upon download user will be able to run workflow locally, either manually or using the bash script provided in the downloaded `zip`.

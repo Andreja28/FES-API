@@ -246,6 +246,7 @@ def run_workflow():
     
         input_path = os.path.join(config.INPUTS,GUID)
         job_store_path = os.path.join(config.RUNNING_WORKFLOWS,str(GUID))
+        log_file_path = os.path.join(config.LOGS, str(GUID))
 
         out_dir = os.path.join(config.RESULTS, str(GUID))
         if (os.path.isdir(out_dir)):
@@ -253,15 +254,16 @@ def run_workflow():
                 "success": False,
                 "message": "Workflow has already been run."
             }
-        os.mkdir(out_dir)
 
         if (req_data['type'] == 'cwl'):
+
+            os.mkdir(out_dir)
+            os.mkdir(log_file_path)
+            log_file_path = os.path.join(log_file_path,"log.txt")
             cwl_path = os.path.abspath(os.path.join(config.CWL,req_data['workflow'], 'workflow.cwl'))
             yaml_path = os.path.abspath(os.path.join(input_path, 'inputs.yaml'))
             
-            error_handle = os.path.abspath(os.path.join(input_path, 'error.txt'))
-
-            process = subprocess.Popen(['cwltoil','--jobStore',os.path.abspath(job_store_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
+            process = subprocess.Popen(['cwltoil','--jobStore',os.path.abspath(job_store_path),'--logFile',os.path.abspath(log_file_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
             pid = process.pid
             
             #th = threading.Thread(target=terminate(GUID,pid, -2, req_data['timelimit']))
@@ -270,12 +272,15 @@ def run_workflow():
 
             conn.commit()
         elif (req_data['type'] == 'toil'):
+
+            os.mkdir(out_dir)
+            os.mkdir(log_file_path)
+            log_file_path = os.path.join(log_file_path,"log.txt")
             toil_path = os.path.join(config.TOIL, req_data["workflow"] , 'main.py')
-            error_handle = "2> "+os.path.abspath(os.path.join(input_path, 'error.txt'))
             #print('timeout '+str(req_data['timelimit'])+' python '+ toil_path+" " +job_store_path+" "+input_path+" "+out_dir)
             #subprocess.Popen(['timeout',str(req_data['timelimit']),'python', config.TOIL +"/"+req_data["workflow"]+"/main.py", job_store_path,input_path,out_dir])
 
-            process = subprocess.Popen(['python', toil_path, job_store_path,input_path,out_dir, error_handle])
+            process = subprocess.Popen(['python', toil_path, job_store_path,input_path,out_dir,'--logFile',os.path.abspath(log_file_path)])
             pid = process.pid
             #th = threading.Thread(target=terminate(GUID,pid, -2, req_data['timelimit']))
             #th.start()
@@ -292,6 +297,29 @@ def run_workflow():
             "message": "Server error."
         }
 
+@app.route('/get-log', methods=['GET'])
+def get_log():
+    GUID = request.args['GUID']
+    if (GUID is None):
+        return {
+            "success":False,
+            "message": "GUID field not set."
+        }
+    try:
+        log_file_path = os.path.join(config.LOGS, str(GUID))
+        log_file_path = os.path.join(log_file_path,"log.txt")
+        if (os.path.isfile(log_file_path)):
+            return send_file(log_file_path)
+        else:
+            return {
+                "success": False,
+                "message": "Log does not exist."
+            }
+    except:
+        return {
+            "success":False,
+            "message": "Server error."
+        }
 
 @app.route('/get-status', methods=['GET'])
 def get_status():
@@ -385,8 +413,14 @@ def get_results():
                     "success": False,
                     "message": "Server error."
                 }
-            
-            
+
+        elif (util.get_wf_status(util.get_wf_pid(GUID), GUID) == 'FINISHED_ERROR'):
+            return {
+                "success": False,
+                "message": "Job finished with error"
+            }
+
+        
         else:
             return {
                 "success": False,
@@ -491,6 +525,7 @@ def delete_wf():
         jobStore = os.path.abspath(os.path.join(config.RUNNING_WORKFLOWS,GUID))
         input_dir = os.path.abspath(os.path.join(config.INPUTS, GUID))
         output_dir = os.path.abspath(os.path.join(config.RESULTS, GUID))
+        log_dir = os.path.abspath(os.path.join(config.LOGS,GUID))
 
         if (os.path.isdir(jobStore)):
             shutil.rmtree(jobStore)
@@ -498,6 +533,8 @@ def delete_wf():
             shutil.rmtree(input_dir)
         if (os.path.isdir(output_dir)):
             shutil.rmtree(output_dir)
+        if (os.path.isdir(log_dir)):
+            shutil.rmtree(log_dir)
     
         c.execute('DELETE FROM workflows WHERE GUID="'+GUID+'"')
         conn.commit()
@@ -598,7 +635,13 @@ def download_wf():
                 zip_file.close()
                 zip_wf.write(zip_file.filename)
                 os.remove(zip_file.filename)
-                    
+        
+        log_dir = os.path.join(config.LOGS,GUID)
+
+        if (os.path.isdir(log_dir)):
+            if (os.path.isfile(os.path.join(log_dir,'log.txt'))):
+                zip_wf.write(os.path.join(log_dir,'log.txt'), 'log.txt')
+
         zip_wf.close()
         
         return send_file(zip_wf.filename)
