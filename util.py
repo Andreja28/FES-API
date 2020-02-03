@@ -1,5 +1,5 @@
 import os, psutil, time, signal, sqlite3, config
-
+from ruamel.yaml import YAML
 def check_pid(pid):
     try:
         os.kill(pid, 0)
@@ -64,3 +64,25 @@ def get_wf(GUID):
 
     conn.close()
     return row
+
+
+def validate_yaml(input_dir):
+    yaml = YAML()
+    cwd = os.getcwd()
+    os.chdir(input_dir)
+    missing = list()
+    with open('inputs.yaml') as file:
+        
+        yaml_in = yaml.load(file)
+        for key in yaml_in:
+            if (yaml_in[key] is not None):
+                if isinstance(yaml_in[key] , list):
+                    for d in yaml_in[key]:
+                        if (not os.path.isfile(d['path'])):
+                            missing.append(d['path'])
+                if isinstance(yaml_in[key],dict):
+                    if (not os.path.isfile(yaml_in[key]['path'])):
+                        missing.append(yaml_in[key]['path'])
+    
+    os.chdir(cwd)
+    return missing

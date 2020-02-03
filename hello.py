@@ -164,14 +164,18 @@ def create_wf():
             }
         os.mkdir(in_dir)
 
+        if zip_field in request.files:
+            if (not zipfile.is_zipfile(inputs)):
+                return {
+                    "success":False,
+                    "message":"input_zip is not a .zip"
+                }
 
         yaml.save(os.path.join(in_dir, 'inputs.yaml'))
-        if zip_field in request.files:
-            inputs.save(os.path.join(in_dir, 'inputs.zip'))
 
         try:
             if zip_field in request.files:
-                with zipfile.ZipFile(os.path.join(in_dir, 'inputs.zip'), 'r') as zip_ref:
+                with zipfile.ZipFile(inputs, 'r') as zip_ref:
                     zip_ref.extractall(in_dir)
         except:
             shutil.rmtree(in_dir)
@@ -179,6 +183,17 @@ def create_wf():
                 "success": False,
                 "message": "Bad .zip file."
             }
+
+        
+        missing = util.validate_yaml(in_dir)
+        if len(missing) > 0:
+            shutil.rmtree(in_dir)
+            return {
+                "success": False,
+                "message": "Input files are missing",
+                "missing": missing
+            }
+        
 
         if (req_data['type'][0] == 'cwl'):
             typeId = 1
@@ -402,7 +417,6 @@ def get_results():
                 for root, directories, files in os.walk(dir_name):
                     directories[:] = [d for d in directories if d not in ['tmp']]
                     for filename in files:
-                        print(filename)
                         filePath = os.path.join(root, filename)
                         zip_file.write(filePath, filename)
 
@@ -587,7 +601,6 @@ def download_wf():
         for root, directories, files in os.walk(wf_dir):
             execute_path = root
             for filename in files:
-                print(filename)
                 filePath = os.path.join(root,filename)
 
                 zipFilePath = "./wf/"+filePath.split(root)[1]
