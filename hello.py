@@ -29,7 +29,7 @@ def get_workflow_templates():
 @app.route('/get-workflows', methods=["GET"])
 def get_workflows():
     try:
-        userID = request.args['userID']
+        
         conn = sqlite3.connect(config.DATABASE)
         c = conn.cursor()
         c.execute('SELECT * FROM workflows')
@@ -41,16 +41,40 @@ def get_workflows():
             wf['GUID'] = row[0]
             wf['status'] = util.get_wf_status(row[3], row[0])
             wf['metadata'] = row[4]
-            print(wf)
-            if (userID is None):   
+            wfs.append(wf)
+        return {
+            "success":True,
+            "workflows":wfs
+        }
+    except:
+        return {
+            "success":False,
+            "message":"Server error."
+        }
+
+@app.route('/get-workflows-by-user', methods=["GET"])
+def get_workflows_user():
+    try:
+        userID = request.args['userID']
+        print(userID)
+        conn = sqlite3.connect(config.DATABASE)
+        c = conn.cursor()
+        c.execute('SELECT * FROM workflows')
+        rows = c.fetchall()
+        wfs = list()
+        for row in rows:
+            wf = dict()
+            wf['workflow-template'] = row[2]
+            wf['GUID'] = row[0]
+            wf['status'] = util.get_wf_status(row[3], row[0])
+            wf['metadata'] = row[4]
+            if (userID is None):
                 wfs.append(wf)
             elif(wf['metadata'] is not None):
-                print("bababababa")
                 try:
                     tree = fromstring(wf['metadata'])
                 except:
                     continue
-                print("balbla")
                 if tree.find('userID').text == userID:
                     wfs.append(wf)
         return {

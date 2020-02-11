@@ -131,7 +131,7 @@ Response:
 ### List of all workflows for a user
 
 ```bash
-curl 127.0.0.1:5000/get-workflows?userID=$userID
+curl 127.0.0.1:5000/get-workflows-by-user?userID=$userID
 ```
 
 Response:
