@@ -128,6 +128,26 @@ Response:
 }
 ```
 
+### List of all workflows for a user
+
+```bash
+curl 127.0.0.1:5000/get-workflows?userID=$userID
+```
+
+Response:
+
+```json
+{
+    "success":true,
+    "workflows":[
+        {"GUID":"71ce4ab6-cde7-4c40-8842-eb1d7368b504","metadata":"<metadata><userID>1</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
+        {"GUID":"49a9d5c9-f433-4480-ad0b-d6933b5c167a","metadata":"<metadata><userID>1</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
+        {"GUID":"b9f12ae4-14f4-4e05-ada9-3d71359f030d","metadata":"<metadata><userID>1</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"}
+        ]
+    }
+
+```
+
 ### Get workflow info
 
 

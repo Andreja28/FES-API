@@ -2,7 +2,7 @@ from flask import Flask, request, send_file
 from markupsafe import escape
 import os, sys, time, subprocess, glob, uuid, config, zipfile, sqlite3, shutil, signal, threading, multiprocessing, psutil
 import util
-
+from xml.etree.ElementTree import XML, fromstring
 
 app = Flask(__name__)
 
@@ -29,6 +29,7 @@ def get_workflow_templates():
 @app.route('/get-workflows', methods=["GET"])
 def get_workflows():
     try:
+        userID = request.args['userID']
         conn = sqlite3.connect(config.DATABASE)
         c = conn.cursor()
         c.execute('SELECT * FROM workflows')
@@ -40,7 +41,18 @@ def get_workflows():
             wf['GUID'] = row[0]
             wf['status'] = util.get_wf_status(row[3], row[0])
             wf['metadata'] = row[4]
-            wfs.append(wf)
+            print(wf)
+            if (userID is None):   
+                wfs.append(wf)
+            elif(wf['metadata'] is not None):
+                print("bababababa")
+                try:
+                    tree = fromstring(wf['metadata'])
+                except:
+                    continue
+                print("balbla")
+                if tree.find('userID').text == userID:
+                    wfs.append(wf)
         return {
             "success":True,
             "workflows":wfs
