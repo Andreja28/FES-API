@@ -22,6 +22,48 @@ Response:
 }
 
 ```
+### List of all workflows
+```bash
+curl cluster2.bioirc.ac.rs:5000/get-workflows
+```
+
+Response:
+
+```json
+{
+    "success":true,
+    "workflows":[
+        {"GUID":"a2388e7a-9294-4a0b-bb24-5c36fb9f37aa","metadata":"<metadata><userID>2</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
+        {"GUID":"8a8faca7-b258-4180-95fe-3fb00ba05463","metadata":"<metadata><userID>2</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
+        .
+        .
+        .
+        {"GUID":"ec669313-364f-4b79-a619-e948f29c0e8e","metadata":"<metadata><userID>2</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
+     ]
+}
+
+```
+
+### List of all workflows filtered by userId
+
+```bash
+curl cluster2.bioirc.ac.rs:5000/get-workflows-by-user?userID=$userID
+```
+
+Response:
+
+```json
+{
+    "success":true,
+    "workflows":[
+        {"GUID":"a2388e7a-9294-4a0b-bb24-5c36fb9f37aa","metadata":"<metadata><userID>2</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
+        {"GUID":"8a8faca7-b258-4180-95fe-3fb00ba05463","metadata":"<metadata><userID>2</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
+        {"GUID":"ec669313-364f-4b79-a619-e948f29c0e8e","metadata":"<metadata><userID>2</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"}
+     ]
+}
+
+```
+
 
 After selecting workflow template (with corresponding type - `cwl` or `toil`) user can create a workflow (providing `.yaml` for the input bindings and `.zip` with archived input files if needed). This can be accomplished with the following request:
 
