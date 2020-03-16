@@ -33,11 +33,10 @@ Response:
 {
     "success":true,
     "workflows":[
+        {"GUID":"a2388e7a-9294-4a0b-bb24-5c36fb9f37aa","metadata":"<metadata><userID>1</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
+        {"GUID":"8a8faca7-b258-4180-95fe-3fb00ba05463","metadata":"<metadata><userID>1</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
         {"GUID":"a2388e7a-9294-4a0b-bb24-5c36fb9f37aa","metadata":"<metadata><userID>2</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
         {"GUID":"8a8faca7-b258-4180-95fe-3fb00ba05463","metadata":"<metadata><userID>2</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
-        .
-        .
-        .
         {"GUID":"ec669313-364f-4b79-a619-e948f29c0e8e","metadata":"<metadata><userID>2</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
      ]
 }
