@@ -64,9 +64,9 @@ Response:
 ```
 
 
-After selecting workflow template (with corresponding type - `cwl` or `toil`) user can create a workflow (providing `.yaml` for the input bindings and `.zip` with archived input files if needed). This can be accomplished with the following request:
-
 ### Create workflow
+
+After selecting workflow template (with corresponding type - `cwl` or `toil`) user can create a workflow (providing `.yaml` for the input bindings and `.zip` with archived input files if needed). This can be accomplished with the following request:
 
 Parameters:
 
