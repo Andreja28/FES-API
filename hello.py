@@ -29,54 +29,58 @@ def get_workflow_templates():
 @app.route('/get-workflows', methods=["GET"])
 def get_workflows():
     try:
+        userID = request.args.get("userID")
+        wf_type = request.args.get("type")
+        template = request.args.get("workflow-template")
+        status = request.args.get("status")
         
-        conn = sqlite3.connect(config.DATABASE)
-        c = conn.cursor()
-        c.execute('SELECT * FROM workflows')
-        rows = c.fetchall()
-        wfs = list()
-        for row in rows:
-            wf = dict()
-            wf['workflow-template'] = row[2]
-            wf['GUID'] = row[0]
-            wf['status'] = util.get_wf_status(row[3], row[0])
-            wf['metadata'] = row[4]
-            wfs.append(wf)
-        return {
-            "success":True,
-            "workflows":wfs
-        }
-    except:
-        return {
-            "success":False,
-            "message":"Server error."
-        }
+        
+        query = 'SELECT w.*, t.Type_Name FROM workflows w join Types t on w.TypeId=t.ID'
+        if (wf_type is not None and template is not None):
+            query += ' WHERE Name="'+template+'" and Type_Name="'+wf_type+'"'
+        elif (wf_type is not None):
+            query += ' WHERE t.Type_Name="'+wf_type+'"'
+        elif (template is not None):
+            query += ' WHERE w.Name="'+template+'"'
 
-@app.route('/get-workflows-by-user', methods=["GET"])
-def get_workflows_user():
-    try:
-        userID = request.args['userID']
-        print(userID)
+        print(query)
+
         conn = sqlite3.connect(config.DATABASE)
         c = conn.cursor()
-        c.execute('SELECT * FROM workflows')
+        c.execute(query)
         rows = c.fetchall()
         wfs = list()
         for row in rows:
             wf = dict()
             wf['workflow-template'] = row[2]
+            wf['type']= row[5]
             wf['GUID'] = row[0]
             wf['status'] = util.get_wf_status(row[3], row[0])
             wf['metadata'] = row[4]
-            if (userID is None):
+
+                       
+            if (status is None and userID is None):
                 wfs.append(wf)
-            elif(wf['metadata'] is not None):
-                try:
-                    tree = fromstring(wf['metadata'])
-                except:
-                    continue
-                if tree.find('userID').text == userID:
+            elif (status is None and userID is not None):
+                if(wf['metadata'] is not None):
+                    try:
+                        tree = fromstring(wf['metadata'])
+                    except:
+                        continue
+                    if tree.find('userID').text == userID:
+                        wfs.append(wf)
+            elif (status is not None and userID is None):
+                if (wf['status']==status):
                     wfs.append(wf)
+            else:
+                if (wf['status']==status and wf['metadata'] is not None):
+                    try:
+                        tree = fromstring(wf['metadata'])
+                    except:
+                        continue
+                    if tree.find('userID').text == userID:
+                        wfs.append(wf)
+        
         return {
             "success":True,
             "workflows":wfs
@@ -107,14 +111,21 @@ def get_workflow_info():
         if (row == None):
             return{
                 "success": False,
-                "message": "Error"
+                "message": "Workflow does't exist"
             }
-                
+        
+        typeID = row[1]
         wf = dict()
         wf['workflow-template'] = row[2]
         wf['GUID'] = row[0]
         wf['status'] = util.get_wf_status(row[3], GUID)
         wf['metadata'] = row[4]
+
+        
+        c.execute('SELECT * FROM Types WHERE ID='+str(typeID))
+        row = c.fetchone()
+        if (row is not None):
+            wf['type']=row[1]
         return {
             "success":True,
             "workflow":wf
