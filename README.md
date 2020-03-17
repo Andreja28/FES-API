@@ -110,10 +110,18 @@ Response:
 }
 ```
 
-### List of all workflows
+### List workflows
+
+Optional parameters for filtering workflows are:
+- *userID* (`userID` is specified in the metadata)
+- *type* (cwl or toil)
+- *workflow-template*
+- *status*
+
+Example below is filtering workflows by the workflow template (in this case `musico-api`)
 
 ```bash
-curl 127.0.0.1:5000/get-workflows
+curl 127.0.0.1:5000/get-workflows?workflow-template=musico-api
 ```
 
 Response:
@@ -121,32 +129,13 @@ Response:
 ```json
 {
     "workflows":[
-        {"GUID":"c804a9a7-b41b-4104-b9c9-141ea953020a","status":"NOT_YET_EXECUTED","workflow-template":"musico-api", "metadata":"Some metadata"},
-        {"GUID":"f56c9009-8ad8-4236-b95d-cc6b2d0be0d6","status":"FINISHED_OK","workflow-template":"musico-api", "metadata":"Some metadata"},
-        {"GUID":"e1810518-f626-44cc-8636-644ee5da799b","status":"FINISHED_OK","workflow-template":"musico-api", "metadata":"Some metadata"}
+        {"GUID":"c804a9a7-b41b-4104-b9c9-141ea953020a","status":"NOT_YET_EXECUTED","workflow-template":"musico-api", "metadata":"Some metadata","type":"cwl"},
+        {"GUID":"f56c9009-8ad8-4236-b95d-cc6b2d0be0d6","status":"FINISHED_OK","workflow-template":"musico-api", "metadata":"Some metadata", "type":"cwl"},
+        {"GUID":"e1810518-f626-44cc-8636-644ee5da799b","status":"FINISHED_OK","workflow-template":"musico-api", "metadata":"Some metadata", "type":"cwl"}
     ]
 }
 ```
 
-### List of all workflows for a user
-
-```bash
-curl 127.0.0.1:5000/get-workflows-by-user?userID=$userID
-```
-
-Response:
-
-```json
-{
-    "success":true,
-    "workflows":[
-        {"GUID":"71ce4ab6-cde7-4c40-8842-eb1d7368b504","metadata":"<metadata><userID>1</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
-        {"GUID":"49a9d5c9-f433-4480-ad0b-d6933b5c167a","metadata":"<metadata><userID>1</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
-        {"GUID":"b9f12ae4-14f4-4e05-ada9-3d71359f030d","metadata":"<metadata><userID>1</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"}
-        ]
-    }
-
-```
 
 ### Get workflow info
 
@@ -166,7 +155,8 @@ Response:
         "GUID":"d0ecf151-b358-45ad-9392-3fd124605116",
         "metadata":"Some metadata",
         "status":"NOT_YET_EXECUTED",
-        "workflow-template":"echo-cwl"
+        "workflow-template":"echo-cwl",
+        "type":"cwl"
     }
 }
 ```

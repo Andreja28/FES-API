@@ -22,9 +22,18 @@ Response:
 }
 
 ```
-### List of all workflows
+### List workflows
+
+Optional parameters for filtering workflows are:
+- *userID* (`userID` is specified in the metadata)
+- *type* (cwl or toil)
+- *workflow-template*
+- *status*
+
+Example below is filtering workflows by the workflow template (in this case `ventricles-cwl`)
+
 ```bash
-curl cluster2.bioirc.ac.rs:5000/get-workflows
+curl cluster2.bioirc.ac.rs:5000/get-workflows?workflow-template=ventricles-cwl
 ```
 
 Response:
@@ -33,36 +42,15 @@ Response:
 {
     "success":true,
     "workflows":[
-        {"GUID":"a2388e7a-9294-4a0b-bb24-5c36fb9f37aa","metadata":"<metadata><userID>1</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
-        {"GUID":"8a8faca7-b258-4180-95fe-3fb00ba05463","metadata":"<metadata><userID>1</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
-        {"GUID":"a2388e7a-9294-4a0b-bb24-5c36fb9f37aa","metadata":"<metadata><userID>2</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
-        {"GUID":"8a8faca7-b258-4180-95fe-3fb00ba05463","metadata":"<metadata><userID>2</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
-        {"GUID":"ec669313-364f-4b79-a619-e948f29c0e8e","metadata":"<metadata><userID>2</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
+        {"GUID":"a2388e7a-9294-4a0b-bb24-5c36fb9f37aa","metadata":"<metadata><userID>1</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl", "type":"cwl"},
+        {"GUID":"8a8faca7-b258-4180-95fe-3fb00ba05463","metadata":"<metadata><userID>1</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl", "type":"cwl"},
+        {"GUID":"a2388e7a-9294-4a0b-bb24-5c36fb9f37aa","metadata":"<metadata><userID>2</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl", "type":"cwl"},
+        {"GUID":"8a8faca7-b258-4180-95fe-3fb00ba05463","metadata":"<metadata><userID>2</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl", "type":"cwl"},
+        {"GUID":"ec669313-364f-4b79-a619-e948f29c0e8e","metadata":"<metadata><userID>2</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl", "type":"cwl"},
      ]
 }
 
 ```
-
-### List of all workflows filtered by userId
-
-```bash
-curl cluster2.bioirc.ac.rs:5000/get-workflows-by-user?userID=$userID
-```
-
-Response:
-
-```json
-{
-    "success":true,
-    "workflows":[
-        {"GUID":"a2388e7a-9294-4a0b-bb24-5c36fb9f37aa","metadata":"<metadata><userID>2</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
-        {"GUID":"8a8faca7-b258-4180-95fe-3fb00ba05463","metadata":"<metadata><userID>2</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"},
-        {"GUID":"ec669313-364f-4b79-a619-e948f29c0e8e","metadata":"<metadata><userID>2</userID></metadata>","status":"NOT_YET_EXECUTED","workflow-template":"ventricles-cwl"}
-     ]
-}
-
-```
-
 
 ### Create workflow
 
@@ -120,7 +108,8 @@ Response:
         "GUID":"94506c1d-57cf-4268-83c1-f80b0c7e6c1d",
         "metadata":"Some metadata",
         "status":"NOT_YET_EXECUTED",
-        "workflow-template":"merge-cwl"
+        "workflow-template":"merge-cwl",
+        "type":"cwl"
     }
 }
 ```
