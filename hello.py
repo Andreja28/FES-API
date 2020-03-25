@@ -15,16 +15,170 @@ def index():
     
 @app.route('/get-workflow-templates', methods=['POST'])
 def get_workflow_templates():
-    folders_cwl = [f.split('/')[-2] for f in glob.glob(config.CWL  + "**/")]
 
-    folders_toil = [f.split('/')[-2] for f in glob.glob(config.TOIL  + "**/")]
+    query = 'SELECT t.name, t.description, type.Type_Name FROM templates t JOIN Types type ON t.TypeID=type.ID'
+    conn = sqlite3.connect(config.DATABASE)
+    c = conn.cursor()
+    c.execute(query)
+    rows = c.fetchall()
+    conn.close()
+    
+    cwl = []
+    toil = []
+
+    for row in rows:
+        if (row[2] == 'cwl'):
+            cwl.append({
+                "workflow-template": row[0],
+                "description": row[1]
+            })
+        if (row[2] == 'toil'):
+            toil.append({
+                "workflow-template": row[0],
+                "description": row[1]
+            })
+    
+
+
     return {
         "status": 'OK',
         "templates": {
-            "cwl": folders_cwl,
-            "toil": folders_toil
+            "cwl": cwl,
+            "toil": toil
         }
     }
+
+@app.route('/template-description', methods=["GET", "POST", "PUT"])
+def template_descriptions():
+    if request.method == 'GET':
+        template = request.args.get("workflow-template")
+        if (template is None):
+            return {
+                "success": False,
+                "message": "No workflow template specified."
+            }
+        
+        query = 'SELECT description FROM templates WHERE name="'+template+'"'
+        conn = sqlite3.connect(config.DATABASE)
+        c = conn.cursor()
+        c.execute(query)
+        row = c.fetchone()
+        description = row[0]
+        conn.close()
+
+        return {
+            "success": True,
+            "description": description
+        }
+    elif (request.method == "POST"):
+        data = dict(request.form)
+        print(data)
+        template = data.get("workflow-template")
+        description = data.get("description")
+        type = data.get("type")
+
+        if (template is None):
+            return {
+                "success": False,
+                "message": "No workflow template specified."
+            }
+
+        if (description is None):
+            return {
+                "success": False,
+                "message": "No description."
+            }
+        
+        if (type is None):
+            return {
+                "success": False,
+                "message": "No type specified."
+            }
+        TypeID = 0
+        if (type == "cwl"):
+            TypeID = 1
+        elif (type == "toil"):
+            TypeID = 2
+        else:
+            return{
+                "succes": False,
+                "message": "Uknown type"
+            }
+
+        query = 'SELECT description FROM templates WHERE name="'+template+'"'
+        conn = sqlite3.connect(config.DATABASE)
+        c = conn.cursor()
+        c.execute(query)
+        row = c.fetchone()
+
+        if (row is None):
+            query = 'INSERT INTO templates (name, description, TypeID) VALUES("'+template+'","'+description+'",'+str(TypeID)+')'
+            try:
+                c.execute(query)
+                conn.commit()
+                conn.close()
+            except :
+                return {
+                    "success": False,
+                    "message": "Server error."
+                }
+
+            return {
+                "success": True
+            }
+            
+        else:
+            return {
+                "success": False,
+                "message": "Workflow template already exists."
+            }
+    else: 
+        data = dict(request.form)
+        template = data.get("workflow-template")
+        description = data.get("description")
+
+        if (template is None):
+            return {
+                "success": False,
+                "message": "No workflow template specified."
+            }
+
+        if (description is None):
+            return {
+                "success": False,
+                "message": "No description."
+            }
+        
+
+        query = 'SELECT description FROM templates WHERE name="'+template+'"'
+        conn = sqlite3.connect(config.DATABASE)
+        c = conn.cursor()
+        c.execute(query)
+        row = c.fetchone()
+
+        if (row is not None):
+            query = 'UPDATE templates SET description = "'+description+'" WHERE name="'+template+'"'
+            try:
+                c.execute(query)
+                conn.commit()
+                conn.close()
+            except :
+                return {
+                    "success": False,
+                    "message": "Server error."
+                }
+
+            return {
+                "success": True
+            }
+            
+        else:
+            return {
+                "success": False,
+                "message": "Workflow template doesn't exists."
+            }
+
+
 
 @app.route('/get-workflows', methods=["GET"])
 def get_workflows():
@@ -109,6 +263,7 @@ def get_workflow_info():
         row = c.fetchone()
 
         if (row == None):
+            conn.close()
             return{
                 "success": False,
                 "message": "Workflow does't exist"
@@ -126,6 +281,7 @@ def get_workflow_info():
         row = c.fetchone()
         if (row is not None):
             wf['type']=row[1]
+        conn.close()
         return {
             "success":True,
             "workflow":wf
