@@ -72,7 +72,6 @@ def template_descriptions():
         }
     elif (request.method == "POST"):
         data = dict(request.form)
-        print(data)
         template = data.get("workflow-template")
         description = data.get("description")
         type = data.get("type")
