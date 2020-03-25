@@ -72,9 +72,9 @@ def template_descriptions():
         }
     elif (request.method == "POST"):
         data = dict(request.form)
-        template = data.get("workflow-template")
-        description = data.get("description")
-        type = data.get("type")
+        template = data.get("workflow-template")[0]
+        description = data.get("description")[0]
+        type = data.get("type")[0]
 
         if (template is None):
             return {
@@ -133,8 +133,8 @@ def template_descriptions():
             }
     else: 
         data = dict(request.form)
-        template = data.get("workflow-template")
-        description = data.get("description")
+        template = data.get("workflow-template")[0]
+        description = data.get("description")[0]
 
         if (template is None):
             return {
