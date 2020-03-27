@@ -16,7 +16,11 @@ def index():
 @app.route('/get-workflow-templates', methods=['POST'])
 def get_workflow_templates():
 
-    query = 'SELECT t.name, t.description, type.Type_Name FROM templates t JOIN Types type ON t.TypeID=type.ID'
+    folders_cwl = [f.split('/')[-2] for f in glob.glob(config.CWL  + "**/")]
+
+    folders_toil = [f.split('/')[-2] for f in glob.glob(config.TOIL  + "**/")]
+
+    query = 'SELECT name, description FROM templates'
     conn = sqlite3.connect(config.DATABASE)
     c = conn.cursor()
     c.execute(query)
@@ -26,17 +30,25 @@ def get_workflow_templates():
     cwl = []
     toil = []
 
-    for row in rows:
-        if (row[2] == 'cwl'):
-            cwl.append({
-                "workflow-template": row[0],
-                "description": row[1]
-            })
-        if (row[2] == 'toil'):
-            toil.append({
-                "workflow-template": row[0],
-                "description": row[1]
-            })
+    for wf in folders_cwl:
+        descr = ""
+        for row in rows:
+            if (row[0] == wf):
+                descr = row[1]
+        cwl.append({
+            "workflow-template": wf,
+            "description": desc
+        })
+    
+    for wf in folders_toil:
+        descr = ""
+        for row in rows:
+            if (row[0] == wf):
+                descr = row[1]
+        toil.append({
+            "workflow-template": wf,
+            "description": desc
+        })
     
 
 
@@ -48,7 +60,7 @@ def get_workflow_templates():
         }
     }
 
-@app.route('/template-description', methods=["GET", "POST", "PUT"])
+@app.route('/template-description', methods=["GET", "POST", "PUT", "DELETE"])
 def template_descriptions():
     if request.method == 'GET':
         template = request.args.get("workflow-template")
@@ -63,6 +75,11 @@ def template_descriptions():
         c = conn.cursor()
         c.execute(query)
         row = c.fetchone()
+        if (row is None):
+            return {
+                "success": False,
+                "message": "Workflow template doesn't have a description."
+            }
         description = row[0]
         conn.close()
 
@@ -72,6 +89,7 @@ def template_descriptions():
         }
     elif (request.method == "POST"):
         data = dict(request.form)
+        print(data)
         template = data.get("workflow-template")[0]
         description = data.get("description")[0]
         type = data.get("type")[0]
@@ -129,9 +147,9 @@ def template_descriptions():
         else:
             return {
                 "success": False,
-                "message": "Workflow template already exists."
+                "message": "Workflow template already has a description."
             }
-    else: 
+    elif (request.method == "PUT"): 
         data = dict(request.form)
         template = data.get("workflow-template")[0]
         description = data.get("description")[0]
@@ -176,8 +194,27 @@ def template_descriptions():
                 "success": False,
                 "message": "Workflow template doesn't exists."
             }
-
-
+    else:
+        data = dict(request.form)
+        print(data)
+        template = data.get("workflow-template")[0]
+        print(template)
+        query = 'DELETE FROM templates WHERE name="'+template+'"'
+        try:
+            conn = sqlite3.connect(config.DATABASE)
+            c = conn.cursor()
+            c.execute(query)
+            conn.commit()
+            conn.close()
+        except :
+            return {
+                "success": False,
+                "message": "Server error."
+            }
+        
+        return {
+            "sucess": True
+        }
 
 @app.route('/get-workflows', methods=["GET"])
 def get_workflows():
