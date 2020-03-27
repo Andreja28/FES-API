@@ -37,7 +37,7 @@ def get_workflow_templates():
                 descr = row[1]
         cwl.append({
             "workflow-template": wf,
-            "description": desc
+            "description": descr
         })
     
     for wf in folders_toil:
