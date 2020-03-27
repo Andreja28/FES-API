@@ -47,7 +47,7 @@ def get_workflow_templates():
                 descr = row[1]
         toil.append({
             "workflow-template": wf,
-            "description": desc
+            "description": descr
         })
     
 
