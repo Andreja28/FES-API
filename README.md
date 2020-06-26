@@ -83,7 +83,7 @@ curl -X PUT http://127.0.0.1:5000/template-description -F "workflow-template=tem
 }
 ```
 
-### Delete template description
+#### Delete template description
 
 ```bash
 curl -X DELETE http://127.0.0.1:5000/template-description -F "workflow-template=template"

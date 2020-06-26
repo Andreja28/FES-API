@@ -61,7 +61,7 @@ curl -X PUT http://cluster2.bioirc.ac.rs:5000/template-description -F "workflow-
 }
 ```
 
-### Delete template description
+#### Delete template description
 
 ```bash
 curl -X DELETE http://cluster2.bioirc.ac.rs:5000/template-description -F "workflow-template=template"
