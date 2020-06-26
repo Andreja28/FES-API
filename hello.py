@@ -90,9 +90,9 @@ def template_descriptions():
     elif (request.method == "POST"):
         data = dict(request.form)
         print(data)
-        template = data.get("workflow-template")[0]
-        description = data.get("description")[0]
-        type = data.get("type")[0]
+        template = data.get("workflow-template")
+        description = data.get("description")
+        type = data.get("type")
 
         if (template is None):
             return {
@@ -151,8 +151,8 @@ def template_descriptions():
             }
     elif (request.method == "PUT"): 
         data = dict(request.form)
-        template = data.get("workflow-template")[0]
-        description = data.get("description")[0]
+        template = data.get("workflow-template")
+        description = data.get("description")
 
         if (template is None):
             return {
@@ -197,7 +197,7 @@ def template_descriptions():
     else:
         data = dict(request.form)
         print(data)
-        template = data.get("workflow-template")[0]
+        template = data.get("workflow-template")
         print(template)
         query = 'DELETE FROM templates WHERE name="'+template+'"'
         try:
