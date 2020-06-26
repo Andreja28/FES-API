@@ -22,25 +22,6 @@ The file `config.py` contains variables `CWL` (path to folder containing CWL wor
 
 ## Examples
 
-### Echo
-
-```bash
-curl -d '{"workflow":"another-cwl", "type":"cwl"}' -H "Content-Type:application/json" -X POST 127.0.0.1:5000/echo
-```
-
-Response:
-
-```json
-{
-    "status":"OK",
-    "your_request":
-    {
-        "type":"cwl",
-        "workflow":"another-cwl"
-    }
-}
-
-```
 
 
 ### List of all workflow templates
@@ -61,6 +42,57 @@ Response:
     }
 }
 
+```
+
+### Manipulation of the workflow template description
+
+#### Set template description
+
+```bash
+curl -X POST http://127.0.0.1:5000/template-description -F "workflow-template=template"  -F "type=cwl"  -F "description=Some description"
+```
+
+```json
+{
+    "success":true
+}
+```
+
+#### Get template description
+
+```bash
+curl http://127.0.0.1:5000/template-description?workflow-template=template 
+```
+
+```json
+{
+    "success":true,
+    "description":"Some description"
+}
+```
+
+#### Update template description
+
+```bash
+curl -X PUT http://127.0.0.1:5000/template-description -F "workflow-template=template"   -F "type=cwl"  -F "description=Some description"
+```
+
+```json
+{
+    "success":true
+}
+```
+
+### Delete template description
+
+```bash
+curl -X DELETE http://127.0.0.1:5000/template-description -F "workflow-template=template"
+```
+
+```json
+{
+    "success":true
+}
 ```
 
 

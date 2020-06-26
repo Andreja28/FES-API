@@ -20,8 +20,59 @@ Response:
         "toil":["musico-api","pakRunner"]
     }
 }
-
 ```
+
+### Manipulation of the workflow template description
+
+#### Set template description
+
+```bash
+curl -X POST http://cluster2.bioirc.ac.rs:5000/template-description -F "workflow-template=template"  -F "type=cwl"  -F "description=Some description"
+```
+
+```json
+{
+    "success":true
+}
+```
+
+#### Get template description
+
+```bash
+curl http://cluster2.bioirc.ac.rs:5000/template-description?workflow-template=template 
+```
+
+```json
+{
+    "success":true,
+    "description":"Some description"
+}
+```
+
+#### Update template description
+
+```bash
+curl -X PUT http://cluster2.bioirc.ac.rs:5000/template-description -F "workflow-template=template"   -F "type=cwl"  -F "description=Some description"
+```
+
+```json
+{
+    "success":true
+}
+```
+
+### Delete template description
+
+```bash
+curl -X DELETE http://cluster2.bioirc.ac.rs:5000/template-description -F "workflow-template=template"
+```
+
+```json
+{
+    "success":true
+}
+```
+
 ### List workflows
 
 Optional parameters for filtering workflows are:
