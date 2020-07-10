@@ -517,7 +517,7 @@ def run_workflow():
             cwl_path = os.path.abspath(os.path.join(config.CWL,req_data['workflow'], 'workflow.cwl'))
             yaml_path = os.path.abspath(os.path.join(input_path, 'inputs.yaml'))
             
-            if (req_data['workflow'] == 'annotation'):
+            if (req_data['workflow'] == 'annotation' or req_data['workflow'] == 'unified'):
                 process = subprocess.Popen(['cwltoil','--no-match-user','--no-read-only','--jobStore',os.path.abspath(job_store_path),'--logFile',os.path.abspath(log_file_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
             
             else:
