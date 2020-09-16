@@ -75,7 +75,7 @@ def validate_yaml(input_dir):
         
         yaml_in = yaml.load(file)
         for key in yaml_in:
-            if (yaml_in[key] is not None):
+            if (yaml_in[key] is not None and key!="girderIds"):
                 if isinstance(yaml_in[key] , list):
                     for d in yaml_in[key]:
                         if (not os.path.isfile(d['path'])):
