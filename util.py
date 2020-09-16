@@ -92,7 +92,7 @@ def getGirderIds(input_dir):
     cwd = os.getcwd()
     os.chdir(input_dir)
     with open('inputs.yaml') as file:
-        
+        os.chdir(cwd)
         yaml_in = yaml.load(file)
         if yaml_in.get('girderIds') is not None:
             return yaml_in['girderIds']
