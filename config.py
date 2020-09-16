@@ -7,3 +7,5 @@ INPUTS = "./inputs"
 LOGS = "./logs"
 
 DATABASE = "workflows"
+
+GIRDER = "http://silicofcm-test.bioirc.ac.rs:8888"

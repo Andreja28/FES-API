@@ -4,6 +4,8 @@ import os, sys, time, subprocess, glob, uuid, config, zipfile, sqlite3, shutil, 
 import util
 from xml.etree.ElementTree import XML, fromstring
 
+from ruamel.yaml import YAML
+
 app = Flask(__name__)
 
 @app.route('/echo', methods=['POST'])
@@ -423,6 +425,8 @@ def create_wf():
                 "message": "Bad .zip file."
             }
 
+        for girderId in util.getGirderIds(in_dir):
+            util.downloadGirderItem(girderId,in_dir)
         
         missing = util.validate_yaml(in_dir)
         if len(missing) > 0:
@@ -450,6 +454,9 @@ def create_wf():
         else:
             c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template'][0]+"',NULL, NULL)")
         conn.commit()
+
+        
+
         return {
             'success': True,
             'GUID':GUID

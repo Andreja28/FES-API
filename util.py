@@ -1,4 +1,4 @@
-import os, psutil, time, signal, sqlite3, config
+import os, psutil, time, signal, sqlite3, config, subprocess
 from ruamel.yaml import YAML
 def check_pid(pid):
     try:
@@ -86,3 +86,19 @@ def validate_yaml(input_dir):
     
     os.chdir(cwd)
     return missing
+
+def getGirderIds(input_dir):
+    yaml = YAML()
+    cwd = os.getcwd()
+    os.chdir(input_dir)
+    with open('inputs.yaml') as file:
+        
+        yaml_in = yaml.load(file)
+        if yaml_in['girderIds'] is not None:
+            return yaml_in['girderIds']
+        else:
+            return []
+
+def downloadGirderItem(girderId, pathToInputs):
+    command = "curl -O -J "+config.GIRDER+"/api/v1/item/"+girderId+"/download"
+    subprocess.call(command, shell=True, cwd=pathToInputs)
