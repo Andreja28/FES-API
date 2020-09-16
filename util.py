@@ -94,7 +94,7 @@ def getGirderIds(input_dir):
     with open('inputs.yaml') as file:
         
         yaml_in = yaml.load(file)
-        if yaml_in['girderIds'] is not None:
+        if yaml_in.get('girderIds') is not None:
             return yaml_in['girderIds']
         else:
             return []
