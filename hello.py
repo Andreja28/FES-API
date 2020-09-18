@@ -6,6 +6,8 @@ from xml.etree.ElementTree import XML, fromstring
 
 from ruamel.yaml import YAML
 
+import girder_client
+
 app = Flask(__name__)
 
 @app.route('/echo', methods=['POST'])
@@ -695,6 +697,50 @@ def get_results():
             "success": False,
             "message": "Workflow either doesn't exist or it hasn't been run."
         }
+
+
+
+@app.route('/upload-results', methods=['GET'])
+def upload_results():
+    
+    GUID = request.args['GUID']
+    if request.args['GUID'] == None:
+        return{
+            "success": False,
+            "message": "GUID field not set."
+        }
+    out_dir = os.path.join(config.RESULTS, GUID)
+    if (os.path.isdir(out_dir)):
+        if (util.get_wf_status(util.get_wf_pid(GUID), GUID) == 'FINISHED_OK'):
+            try:
+                return {
+                    "uploadedFolder": util.uploadToGirder(out_dir)
+                }
+
+            except:
+                return {
+                    "success": False,
+                    "message": "Server error."
+                }
+
+        elif (util.get_wf_status(util.get_wf_pid(GUID), GUID) == 'FINISHED_ERROR'):
+            return {
+                "success": False,
+                "message": "Job finished with error"
+            }
+
+        
+        else:
+            return {
+                "success": False,
+                "message": "Job not finished"
+            }
+    else:
+        return{
+            "success": False,
+            "message": "Workflow either doesn't exist or it hasn't been run."
+        }
+
 
 
 

@@ -8,4 +8,8 @@ LOGS = "./logs"
 
 DATABASE = "workflows"
 
-GIRDER = "http://silicofcm-test.bioirc.ac.rs:8888"
+GIRDER_API = "http://silicofcm-test.bioirc.ac.rs:8888/api/v1"
+
+GIRDER_API_KEY = "6xoppIHYIOiJvCYxbLI6RcgkiDhELVDVNQcPcIzi"
+
+PARENT_FOLDER_GIRDER_ID = "5f64c342a4c3269067f6a07c"
