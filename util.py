@@ -113,5 +113,5 @@ def uploadToGirder(folderPath):
     gc.authenticate(apiKey=config.GIRDER_API_KEY)
 
 
-    ls = gc.listFolder(config.PARENT_FOLDER_GIRDER_ID, name=folderPath.split("/")[-1])
-    return list(ls)[0]
+    #ls = gc.listFolder(config.PARENT_FOLDER_GIRDER_ID, name=folderPath.split("/")[-1])
+    return {"success":True}
