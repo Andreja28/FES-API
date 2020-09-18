@@ -108,12 +108,10 @@ def downloadGirderItem(girderId, pathToInputs):
 
 def uploadToGirder(folderPath):
     command = "girder-client --api-url "+ config.GIRDER_API + " --api-key " + config.GIRDER_API_KEY + " upload " + config.PARENT_FOLDER_GIRDER_ID + " " + folderPath
-    print(config.GIRDER_API)
-    print(command)
     subprocess.call(command ,shell=True)
     gc = girder_client.GirderClient(apiUrl=config.GIRDER_API)
     gc.authenticate(apiKey=config.GIRDER_API_KEY)
 
 
-    #ls = gc.listFolder(config.PARENT_FOLDER_GIRDER_ID, name=folderPath.split("/")[-1])
-    return {"success":True}
+    ls = gc.listFolder(config.PARENT_FOLDER_GIRDER_ID, name=folderPath.split("/")[-1])
+    return list(ls)[0]
