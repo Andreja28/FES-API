@@ -9,13 +9,6 @@ from ruamel.yaml import YAML
 import girder_client
 
 app = Flask(__name__)
-
-@app.route('/echo', methods=['POST'])
-def index():
-    req_data = request.get_json()
-    return {'status': 'OK',
-            'your_request':req_data}
-
     
 @app.route('/get-workflow-templates', methods=['POST'])
 def get_workflow_templates():
@@ -93,11 +86,9 @@ def template_descriptions():
         }
     elif (request.method == "POST"):
         data = dict(request.form)
-        print(data)
-        template = data.get("workflow-template")[0]
-        description = data.get("description")[0]
-        type = data.get("type")[0]
-
+        template = data.get("workflow-template")
+        description = data.get("description")
+        type = data.get("type")
         if (template is None):
             return {
                 "success": False,
@@ -122,7 +113,7 @@ def template_descriptions():
             TypeID = 2
         else:
             return{
-                "succes": False,
+                "success": False,
                 "message": "Uknown type"
             }
 
@@ -155,8 +146,8 @@ def template_descriptions():
             }
     elif (request.method == "PUT"): 
         data = dict(request.form)
-        template = data.get("workflow-template")[0]
-        description = data.get("description")[0]
+        template = data.get("workflow-template")
+        description = data.get("description")
 
         if (template is None):
             return {
@@ -200,9 +191,7 @@ def template_descriptions():
             }
     else:
         data = dict(request.form)
-        print(data)
-        template = data.get("workflow-template")[0]
-        print(template)
+        template = data.get("workflow-template")
         query = 'DELETE FROM templates WHERE name="'+template+'"'
         try:
             conn = sqlite3.connect(config.DATABASE)
@@ -237,7 +226,6 @@ def get_workflows():
         elif (template is not None):
             query += ' WHERE w.Name="'+template+'"'
 
-        print(query)
 
         conn = sqlite3.connect(config.DATABASE)
         c = conn.cursor()
@@ -352,13 +340,6 @@ def create_wf():
                 'success': False,
                 'message': 'Yaml file not selected.'
             }
-        '''
-        if zip_field not in request.files or request.files[zip_field].filename=='':
-            return{
-                'success': False,
-                'message': 'Zip with input files not selected.'
-            }
-        '''
         
 
         if ('workflow-template' not in req_data.keys()):
@@ -373,7 +354,7 @@ def create_wf():
                 "message": "type field not set"
             }
             
-        if not (req_data['type'][0] == 'toil' or req_data['type'][0] == 'cwl'):
+        if not (req_data['type'] == 'toil' or req_data['type'] == 'cwl'):
             return{
                 "success": False,
                 "message": "type field is not 'toil' or 'cwl'"
@@ -383,12 +364,12 @@ def create_wf():
 
         toil_templates = [f.split('/')[-2] for f in glob.glob(config.TOIL  + "**/")]
 
-        if (req_data['type'][0] == 'toil'):
+        if (req_data['type'] == 'toil'):
             templates = [f.split('/')[-2] for f in glob.glob(config.TOIL  + "**/")]
         else:
             templates = [f.split('/')[-2] for f in glob.glob(config.CWL  + "**/")]
         
-        if not (req_data['workflow-template'][0] in templates):
+        if not (req_data['workflow-template'] in templates):
             return {
                 "success": False,
                 "message": "Workflow template doesn't exist."
@@ -440,21 +421,21 @@ def create_wf():
             }
         
 
-        if (req_data['type'][0] == 'cwl'):
+        if (req_data['type'] == 'cwl'):
             typeId = 1
         else:
             typeId = 2
         if ('metadata' in req_data.keys() and req_data['metadata'] is not None):
-            metadata = req_data['metadata'][0]
+            metadata = req_data['metadata']
         else:
             metadata = None
         
         c = conn.cursor()
         
         if (metadata is not None):
-            c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template'][0]+"',NULL, '"+metadata+"')")
+            c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template']+"',NULL, '"+metadata+"')")
         else:
-            c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template'][0]+"',NULL, NULL)")
+            c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template']+"',NULL, NULL)")
         conn.commit()
 
         
@@ -525,18 +506,18 @@ def run_workflow():
             log_file_path = os.path.join(log_file_path,"log.txt")
             cwl_path = os.path.abspath(os.path.join(config.CWL,req_data['workflow'], 'workflow.cwl'))
             yaml_path = os.path.abspath(os.path.join(input_path, 'inputs.yaml'))
-            
+
+
             if (req_data['workflow'] == 'annotation' or req_data['workflow'] == 'unified'):
-                process = subprocess.Popen(['cwltoil','--no-match-user','--no-read-only','--jobStore',os.path.abspath(job_store_path),'--logFile',os.path.abspath(log_file_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
+                process = subprocess.Popen(['toil-cwl-runner','--no-match-user','--no-read-only','--jobStore',os.path.abspath(job_store_path),'--logFile',os.path.abspath(log_file_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
             
             else:
-                process = subprocess.Popen(['cwltoil','--jobStore',os.path.abspath(job_store_path),'--logFile',os.path.abspath(log_file_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
+                process = subprocess.Popen(['toil-cwl-runner','--jobStore',os.path.abspath(job_store_path),'--logFile',os.path.abspath(log_file_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
+            
             pid = process.pid
             
-            #th = threading.Thread(target=terminate(GUID,pid, -2, req_data['timelimit']))
-            #th.start()
             c.execute('UPDATE workflows SET PID='+str(pid)+' WHERE GUID="'+GUID+'"')
-
+            
             conn.commit()
         elif (req_data['type'] == 'toil'):
 
@@ -544,13 +525,10 @@ def run_workflow():
             os.mkdir(log_file_path)
             log_file_path = os.path.join(log_file_path,"log.txt")
             toil_path = os.path.join(config.TOIL, req_data["workflow"] , 'main.py')
-            #print('timeout '+str(req_data['timelimit'])+' python '+ toil_path+" " +job_store_path+" "+input_path+" "+out_dir)
-            #subprocess.Popen(['timeout',str(req_data['timelimit']),'python', config.TOIL +"/"+req_data["workflow"]+"/main.py", job_store_path,input_path,out_dir])
-
+            
             process = subprocess.Popen(['python', toil_path, job_store_path,input_path,out_dir,'--logFile',os.path.abspath(log_file_path)])
             pid = process.pid
-            #th = threading.Thread(target=terminate(GUID,pid, -2, req_data['timelimit']))
-            #th.start()
+            
             c.execute('UPDATE workflows SET PID='+str(pid)+' WHERE GUID="'+GUID+'"')
             conn.commit()
 
@@ -591,6 +569,7 @@ def get_log():
 @app.route('/get-status', methods=['GET'])
 def get_status():
     GUID = request.args['GUID']
+    print(GUID)
     if GUID is None:
         return{
             "success": False,
@@ -601,10 +580,10 @@ def get_status():
         c = conn.cursor()
         c.execute('SELECT * FROM workflows WHERE GUID="'+GUID+'"')
         row = c.fetchone()
-            
+        
         conn.close()
     except:
-        return{
+        return {
             "success": False,
             "message": "Server error.",
             "status": "Error"
@@ -618,7 +597,7 @@ def get_status():
             }
     
     status = util.get_wf_status(row[3], GUID)
-
+    
     if (row[3] == None):
         return {
             'success':True,
@@ -632,7 +611,7 @@ def get_status():
             "status": status
         }
     if (row[3] == -2):
-        return{
+        return {
             'success': True,
             "message": "Workflow has been terminated due to timeout.",
             "status": status
@@ -640,12 +619,13 @@ def get_status():
 
     job_store = os.path.abspath(os.path.join(config.RUNNING_WORKFLOWS, GUID))
     
-
+    print(job_store)
     message = subprocess.check_output(['toil', 'status', job_store])
-
-    return{
+    print(message)
+    print(status)
+    return {
         "success": True,
-        "message": message,
+        "message": str(message, encoding="UTF-8"),
         "status": status
     }
 
@@ -700,15 +680,16 @@ def get_results():
 
 
 
-@app.route('/upload-results', methods=['GET'])
+@app.route('/upload-results', methods=['POST'])
 def upload_results():
-    
-    GUID = request.args['GUID']
-    if request.args['GUID'] == None:
+    req_data = request.get_json()
+    if 'GUID' not in req_data.keys():
         return{
             "success": False,
             "message": "GUID field not set."
         }
+    GUID = req_data['GUID']
+    
     out_dir = os.path.join(config.RESULTS, GUID)
     if (os.path.isdir(out_dir)):
         if (util.get_wf_status(util.get_wf_pid(GUID), GUID) == 'FINISHED_OK'):
@@ -959,6 +940,3 @@ def download_wf():
             "success": False,
             "message": "Server error."
         }
-    
-
-            

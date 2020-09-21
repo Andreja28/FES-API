@@ -1,7 +1,10 @@
 venv
+venv3
 *.pyc
 .vscode/
 inputs/
-results/
+results/*
+logs/*
 running/
 tml/
+req*
