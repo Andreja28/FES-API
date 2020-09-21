@@ -146,8 +146,8 @@ def template_descriptions():
             }
     elif (request.method == "PUT"): 
         data = dict(request.form)
-        template = data.get("workflow-template")[0]
-        description = data.get("description")[0]
+        template = data.get("workflow-template")
+        description = data.get("description")
 
         if (template is None):
             return {
@@ -191,7 +191,7 @@ def template_descriptions():
             }
     else:
         data = dict(request.form)
-        template = data.get("workflow-template")[0]
+        template = data.get("workflow-template")
         query = 'DELETE FROM templates WHERE name="'+template+'"'
         try:
             conn = sqlite3.connect(config.DATABASE)
@@ -354,7 +354,7 @@ def create_wf():
                 "message": "type field not set"
             }
             
-        if not (req_data['type'][0] == 'toil' or req_data['type'][0] == 'cwl'):
+        if not (req_data['type'] == 'toil' or req_data['type'] == 'cwl'):
             return{
                 "success": False,
                 "message": "type field is not 'toil' or 'cwl'"
@@ -364,12 +364,12 @@ def create_wf():
 
         toil_templates = [f.split('/')[-2] for f in glob.glob(config.TOIL  + "**/")]
 
-        if (req_data['type'][0] == 'toil'):
+        if (req_data['type'] == 'toil'):
             templates = [f.split('/')[-2] for f in glob.glob(config.TOIL  + "**/")]
         else:
             templates = [f.split('/')[-2] for f in glob.glob(config.CWL  + "**/")]
         
-        if not (req_data['workflow-template'][0] in templates):
+        if not (req_data['workflow-template'] in templates):
             return {
                 "success": False,
                 "message": "Workflow template doesn't exist."
@@ -421,21 +421,21 @@ def create_wf():
             }
         
 
-        if (req_data['type'][0] == 'cwl'):
+        if (req_data['type'] == 'cwl'):
             typeId = 1
         else:
             typeId = 2
         if ('metadata' in req_data.keys() and req_data['metadata'] is not None):
-            metadata = req_data['metadata'][0]
+            metadata = req_data['metadata']
         else:
             metadata = None
         
         c = conn.cursor()
         
         if (metadata is not None):
-            c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template'][0]+"',NULL, '"+metadata+"')")
+            c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template']+"',NULL, '"+metadata+"')")
         else:
-            c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template'][0]+"',NULL, NULL)")
+            c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template']+"',NULL, NULL)")
         conn.commit()
 
         
@@ -569,6 +569,7 @@ def get_log():
 @app.route('/get-status', methods=['GET'])
 def get_status():
     GUID = request.args['GUID']
+    print(GUID)
     if GUID is None:
         return{
             "success": False,
