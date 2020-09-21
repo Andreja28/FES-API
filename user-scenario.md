@@ -119,7 +119,7 @@ This request specifies which workflow will be run and uploads two files:
 * `input_zip` (optional) - `.zip` file containing all the input files for the workflow if neccessary
 
 *Note:*
-Yaml file that determines the inputs od the workflow can have additional field `girderIds`. This field is an array consisting of file ids stored on Girder. All the files specified in this field will be downloaded from Girder platform ifthey are not sent in the `input_zip` field.
+Yaml file that determines the inputs od the workflow can have additional field `girderIds`. This field is an array consisting of file ids stored on Girder. All the files specified in this field will be downloaded from Girder platform if they are not sent in the `input_zip` field.
 
 
 Creating workflow from `merge-cwl` template (this template is located [here](https://github.com/Andreja28/cloud-workflows/tree/master/cwl/merge-cwl)). This workflow has two nodes (as an input it takes 3 files [2 `.txt.` files and one bash script]). First node merges the two files into one, and the second node invokes the bash script ( takes merged file as an argument ) and counts the number of lines in the file (the script has timeout set for 15s for testing purposes).
