@@ -645,6 +645,9 @@ def get_results():
             try:
                 dir_name = os.path.join(config.RESULTS, GUID)
                 zip_file = zipfile.ZipFile(dir_name+".zip", 'w')
+                
+                if os.path.isdir(os.path.join(dir_name, "tmp")):
+                    shutil.rmtree(os.path.join(dir_name, "tmp")) 
 
                 for root, directories, files in os.walk(dir_name):
                     directories[:] = [d for d in directories if d not in ['tmp']]
@@ -694,6 +697,9 @@ def upload_results():
     if (os.path.isdir(out_dir)):
         if (util.get_wf_status(util.get_wf_pid(GUID), GUID) == 'FINISHED_OK'):
             try:
+                if os.path.isdir(os.path.join(out_dir, "tmp")):
+                    shutil.rmtree(os.path.join(out_dir, "tmp")) 
+
                 return {
                     "uploadedFolder": util.uploadToGirder(out_dir)
                 }
