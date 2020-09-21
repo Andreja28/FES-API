@@ -111,6 +111,9 @@ This request specifies which workflow will be run and uploads two files:
 * `yaml` - `.yaml` file that contains input bindings for the specified workflow
 * `input_zip` (optional) - `.zip` file containing all the input files for the workflow if neccessary
 
+*Note:*
+Yaml file that determines the inputs od the workflow can have additional field `girderIds`. This field is an array consisting of file ids stored on Girder. All the files specified in this field will be downloaded from Girder platform ifthey are not sent in the `input_zip` field.
+
 Creating workflow from `toil` template:
 ```bash
 curl -F 'yaml=@mnt/d/inputs.yaml' -F 'input_zip=@mnt/d/inputs.zip' -F 'type=toil' -F 'workflow-template=musico-api' 127.0.0.1:5000/create-workflow
@@ -259,6 +262,36 @@ Response:
                                  Dload  Upload   Total   Spent    Left  Speed
 100 9350k  100 9350k    0     0  84.8M      0 --:--:-- --:--:-- --:--:-- 85.3M
 
+```
+
+### Upload results to Girder
+
+This request takes only `GUID` as input:
+
+```bash
+curl -d '{"GUID":"14822ea8-5c10-4161-b51c-7ef9c4b6ed0f"}' -H "Content-Type:application/json" -X POST 127.0.0.1:5000/upload-results
+```
+
+```json
+{
+    "uploadedFolder":{
+        "_accessLevel":2,
+        "_id":"5f68934ca4c3269067f6a36d",
+        "_modelType":"folder",
+        "baseParentId":"5f589bfba4c3269067f69f20",
+        "baseParentType":"user",
+        "created":"2020-09-21T11:49:32.359000+00:00",
+        "creatorId":"5f589bfba4c3269067f69f20",
+        "description":"",
+        "meta":{},
+        "name":"14822ea8-5c10-4161-b51c-7ef9c4b6ed0f",
+        "parentCollection":"folder",
+        "parentId":"5f64c342a4c3269067f6a07c",
+        "public":true,
+        "size":920914,
+        "updated":"2020-09-21T11:49:32.359000+00:00"
+    }
+}
 ```
 
 ### Get log file
