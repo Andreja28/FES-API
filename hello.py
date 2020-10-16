@@ -508,12 +508,20 @@ def run_workflow():
             yaml_path = os.path.abspath(os.path.join(input_path, 'inputs.yaml'))
 
 
-            if (req_data['workflow'] == 'annotation' or req_data['workflow'] == 'unified'):
-                process = subprocess.Popen(['toil-cwl-runner','--no-match-user','--no-read-only','--jobStore',os.path.abspath(job_store_path),'--logFile',os.path.abspath(log_file_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
-            
+
+
+            if (req_data['workflow'] == 'annotation' or req_data['workflow'] == 'unified' or req_data['workflow'] == 'graph'):
+                if (config.CWL_RUNNER == 'toil-cwl-runner'):
+                    process = subprocess.Popen([config.CWL_RUNNER,'--no-match-user','--no-read-only','--jobStore',os.path.abspath(job_store_path),'--logFile',os.path.abspath(log_file_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
+                else:
+                    process = subprocess.Popen([config.CWL_RUNNER,'--no-match-user','--no-read-only', cwl_path, yaml_path], cwd=os.path.abspath(out_dir), stdout = open(log_file_path,'w'), stderr = open(log_file_path,'w'))
+                
             else:
-                process = subprocess.Popen(['toil-cwl-runner','--jobStore',os.path.abspath(job_store_path),'--logFile',os.path.abspath(log_file_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
-            
+                if (config.CWL_RUNNER == 'toil-cwl-runner'):
+                    process = subprocess.Popen([config.CWL_RUNNER,'--jobStore',os.path.abspath(job_store_path),'--logFile',os.path.abspath(log_file_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
+                else:
+                    process = subprocess.Popen([config.CWL_RUNNER, cwl_path, yaml_path], cwd=os.path.abspath(out_dir), stdout = open(log_file_path,'w'), stderr = open(log_file_path,'w'))
+                
             pid = process.pid
             
             c.execute('UPDATE workflows SET PID='+str(pid)+' WHERE GUID="'+GUID+'"')

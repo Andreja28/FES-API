@@ -1,6 +1,8 @@
 CWL="./../cloud-workflows/cwl/"
 TOIL="./../cloud-workflows/toil/"
 
+CWL_RUNNER="cwltool"
+
 RESULTS = "./results"
 RUNNING_WORKFLOWS = "./running"
 INPUTS = "./inputs"
