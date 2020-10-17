@@ -628,14 +628,19 @@ def get_status():
     job_store = os.path.abspath(os.path.join(config.RUNNING_WORKFLOWS, GUID))
     
     print(job_store)
-    message = subprocess.check_output(['toil', 'status', job_store])
-    print(message)
-    print(status)
-    return {
-        "success": True,
-        "message": str(message, encoding="UTF-8"),
-        "status": status
-    }
+
+    if (config.CWL_RUNNER=="toil-cwl-runner"):
+        message = subprocess.check_output(['toil', 'status', job_store])
+        return {
+            "success": True,
+            "message": str(message, encoding="UTF-8"),
+            "status": status
+        }
+    else:
+        return {
+            "success": True,
+            "status": status
+        }
 
 
 @app.route('/get-results', methods=['GET'])
