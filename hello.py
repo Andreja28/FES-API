@@ -510,7 +510,7 @@ def run_workflow():
 
 
 
-            if (req_data['workflow'] == 'annotation' or req_data['workflow'] == 'unified' or req_data['workflow'] == 'graph'):
+            if (req_data['workflow'] == 'annotation' or req_data['workflow'] == 'unified' or req_data['workflow'] == 'graph' or req_data['workflow'] == 'optim-aps'):
                 if (config.CWL_RUNNER == 'toil-cwl-runner'):
                     process = subprocess.Popen([config.CWL_RUNNER,'--no-match-user','--no-read-only','--jobStore',os.path.abspath(job_store_path),'--logFile',os.path.abspath(log_file_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
                 else:
