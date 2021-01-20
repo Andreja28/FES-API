@@ -1,4 +1,4 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, render_template
 from markupsafe import escape
 import os, sys, time, subprocess, glob, uuid, config, zipfile, sqlite3, shutil, signal, threading, multiprocessing, psutil
 import util
@@ -8,8 +8,12 @@ from ruamel.yaml import YAML
 
 import girder_client
 
-app = Flask(__name__)
-    
+app = Flask(__name__, template_folder="templates")
+
+@app.route('/api/docs')
+def get_docs():
+    return render_template('swaggerui.html')
+
 @app.route('/get-workflow-templates', methods=['POST'])
 def get_workflow_templates():
 
