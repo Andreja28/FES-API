@@ -3,13 +3,10 @@
 ## Installation
 
 ```bash
-#Python 2.7
-sudo apt-get install python-virtualenv
-```
-
-```bash
+sudo pip3 install virtualenv
 cd FES-API
-python2 -m virtualenv venv
+virtualenv -p python3 venv
+python3 -m virtualenv venv
 . venv/bin/activate
 pip install Flask
 export FLASK_APP=hello.py
