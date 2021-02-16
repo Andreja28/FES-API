@@ -855,7 +855,7 @@ def delete_wf():
                 "message": "Workflow doesn't exist."
             }
         
-        if (row[3] > 0 and util.check_pid(row[3])):
+        if (row[3] is not None and row[3] > 0 and util.check_pid(row[3])):
             conn.close()
             return {
                 "success":False,
