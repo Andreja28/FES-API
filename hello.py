@@ -412,8 +412,17 @@ def create_wf():
                 "message": "Bad .zip file."
             }
 
-        for girderId in util.getGirderIds(in_dir):
-            util.downloadGirderItem(girderId,in_dir)
+        if (len(util.getGirderIds) > 0):
+            if (request.headers.get("girder-api-key") is not None):
+                try:
+                    for girderId in util.getGirderIds(in_dir):
+                        util.downloadGirderItem(girderId,in_dir, request.headers.get("girder-api-key"))
+                except:
+                    shutil.rmtree(in_dir)
+                    return {
+                        "success": False,
+                        "message": "Girder error.",
+                    }
         
         missing = util.validate_yaml(in_dir)
         if len(missing) > 0:
@@ -702,6 +711,12 @@ def get_results():
 
 @app.route('/upload-results', methods=['POST'])
 def upload_results():
+    if (request.headers.get('girder-api-key') is None ):
+        return {
+            "success": False,
+            "message": "API KEY not provided."
+        }
+
     req_data = request.get_json()
     if 'GUID' not in req_data.keys():
         return{
@@ -709,17 +724,28 @@ def upload_results():
             "message": "GUID field not set."
         }
     GUID = req_data['GUID']
+
     
     out_dir = os.path.join(config.RESULTS, GUID)
     if (os.path.isdir(out_dir)):
         if (util.get_wf_status(util.get_wf_pid(GUID), GUID) == 'FINISHED_OK'):
             try:
                 if os.path.isdir(os.path.join(out_dir, "tmp")):
-                    shutil.rmtree(os.path.join(out_dir, "tmp")) 
+                    shutil.rmtree(os.path.join(out_dir, "tmp"))
+                
+                try:
+                    folder = util.uploadToGirder(out_dir,request.headers.get('girder-api-key'))
 
-                return {
-                    "uploadedFolder": util.uploadToGirder(out_dir)
+                    return {
+                        "success": True,
+                        "uploadedFolder": folder
+                    }
+                except:
+                    return {
+                    "success": False,
+                    "message": "Error uploading to girder."
                 }
+
 
             except:
                 return {
