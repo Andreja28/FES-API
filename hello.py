@@ -723,6 +723,13 @@ def upload_results():
             "success": False,
             "message": "GUID field not set."
         }
+    
+    if 'girder-parent-id' not in req_data.keys():
+        return{
+            "success": False,
+            "message": "Girder parent folder field not set."
+        }
+
     GUID = req_data['GUID']
 
     
@@ -734,7 +741,7 @@ def upload_results():
                     shutil.rmtree(os.path.join(out_dir, "tmp"))
                 
                 try:
-                    folder = util.uploadToGirder(out_dir,request.headers.get('girder-api-key'))
+                    folder = util.uploadToGirder(out_dir,request.headers.get('girder-api-key'), req_data['gider-parent-id'])
 
                     return {
                         "success": True,
