@@ -416,8 +416,9 @@ def create_wf():
             if (request.headers.get("girder-api-key") is not None):
                 try:
                     for girderId in util.getGirderIds(in_dir):
-                        util.downloadGirderItem(girderId,in_dir, request.headers.get("girder-api-key"))
-                except:
+                        util.downloadGirderFile(girderId,in_dir, request.headers.get("girder-api-key"))
+                except Exception as e:
+                    print(e)
                     shutil.rmtree(in_dir)
                     return {
                         "success": False,
@@ -457,7 +458,8 @@ def create_wf():
             'success': True,
             'GUID':GUID
         }
-    except:
+    except Exception as e:
+        print(e)
         shutil.rmtree(in_dir)
         return{
             "success": False,

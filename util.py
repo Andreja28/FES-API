@@ -101,10 +101,10 @@ def getGirderIds(input_dir):
         else:
             return []
 
-def downloadGirderItem(girderId, pathToInputs, girder_api_key):
+def downloadGirderFile(girderId, pathToInputs, girder_api_key):
     gc = girder_client.GirderClient(apiUrl=config.GIRDER_API)
     gc.authenticate(apiKey=girder_api_key)
-    gc.downloadItem(girderId, pathToInputs)
+    gc.downloadFile(girderId, pathToInputs)
 
 
 def uploadToGirder(folderPath, girder_api_key, girder_parent_id):
