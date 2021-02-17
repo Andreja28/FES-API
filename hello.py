@@ -412,7 +412,7 @@ def create_wf():
                 "message": "Bad .zip file."
             }
 
-        if (len(util.getGirderIds) > 0):
+        if (len(util.getGirderIds(in_dir)) > 0):
             if (request.headers.get("girder-api-key") is not None):
                 try:
                     for girderId in util.getGirderIds(in_dir):
