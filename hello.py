@@ -1,6 +1,7 @@
 from flask import Flask, request, send_file, render_template
 from markupsafe import escape
 import os, sys, time, subprocess, glob, uuid, config, zipfile, sqlite3, shutil, signal, threading, multiprocessing, psutil
+from datetime import datetime
 import util
 from xml.etree.ElementTree import XML, fromstring
 
@@ -243,6 +244,7 @@ def get_workflows():
             wf['GUID'] = row[0]
             wf['status'] = util.get_wf_status(row[3], row[0])
             wf['metadata'] = row[4]
+            wf['creationDate'] = row[5]
 
                        
             if (status is None and userID is None):
@@ -307,6 +309,7 @@ def get_workflow_info():
         wf['GUID'] = row[0]
         wf['status'] = util.get_wf_status(row[3], GUID)
         wf['metadata'] = row[4]
+        wf['creationDate'] = row[5]
 
         
         c.execute('SELECT * FROM Types WHERE ID='+str(typeID))
@@ -445,11 +448,13 @@ def create_wf():
             metadata = None
         
         c = conn.cursor()
+
+        currentDate = datetime.now()
         
         if (metadata is not None):
-            c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template']+"',NULL, '"+metadata+"')")
+            c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template']+"',NULL, '"+metadata+"', "+currentDate+")")
         else:
-            c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template']+"',NULL, NULL)")
+            c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template']+"',NULL, NULL, "+currentDate+")")
         conn.commit()
 
         
@@ -539,7 +544,7 @@ def run_workflow():
                 
             pid = process.pid
             
-            c.execute('UPDATE workflows SET PID='+str(pid)+' WHERE GUID="'+GUID+'"')
+            c.execute('UPDATE workflows SET PID='+str(pid)+', SET creationDate='+datetime.now()+' WHERE GUID="'+GUID+'"')
             
             conn.commit()
         elif (req_data['type'] == 'toil'):
@@ -552,7 +557,7 @@ def run_workflow():
             process = subprocess.Popen(['python', toil_path, job_store_path,input_path,out_dir,'--logFile',os.path.abspath(log_file_path)])
             pid = process.pid
             
-            c.execute('UPDATE workflows SET PID='+str(pid)+' WHERE GUID="'+GUID+'"')
+            c.execute('UPDATE workflows SET PID='+str(pid)+', SET creationDate='+datetime.now()+' WHERE GUID="'+GUID+'"')
             conn.commit()
 
         conn.close()
