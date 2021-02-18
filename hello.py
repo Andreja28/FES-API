@@ -557,7 +557,7 @@ def run_workflow():
             process = subprocess.Popen(['python', toil_path, job_store_path,input_path,out_dir,'--logFile',os.path.abspath(log_file_path)])
             pid = process.pid
             
-            c.execute('UPDATE workflows SET PID='+str(pid)+', SET creationDate="'+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+'" WHERE GUID="'+GUID+'"')
+            c.execute('UPDATE workflows SET PID='+str(pid)+', creationDate="'+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+'" WHERE GUID="'+GUID+'"')
             conn.commit()
 
         conn.close()
