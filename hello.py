@@ -449,7 +449,7 @@ def create_wf():
         
         c = conn.cursor()
 
-        currentDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        currentDate = datetime.now().isoformat("T")
         
         if (metadata is not None):
             c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template']+"',NULL, '"+metadata+"', '"+currentDate+"')")
@@ -544,7 +544,7 @@ def run_workflow():
                 
             pid = process.pid
             
-            c.execute('UPDATE workflows SET PID='+str(pid)+', creationDate="'+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+'" WHERE GUID="'+GUID+'"')
+            c.execute('UPDATE workflows SET PID='+str(pid)+', creationDate="'+datetime.now().isoformat("T")+'" WHERE GUID="'+GUID+'"')
             
             conn.commit()
         elif (req_data['type'] == 'toil'):
@@ -557,7 +557,7 @@ def run_workflow():
             process = subprocess.Popen(['python', toil_path, job_store_path,input_path,out_dir,'--logFile',os.path.abspath(log_file_path)])
             pid = process.pid
             
-            c.execute('UPDATE workflows SET PID='+str(pid)+', creationDate="'+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+'" WHERE GUID="'+GUID+'"')
+            c.execute('UPDATE workflows SET PID='+str(pid)+', creationDate="'+datetime.now().isoformat("T")+'" WHERE GUID="'+GUID+'"')
             conn.commit()
 
         conn.close()
