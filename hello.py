@@ -240,7 +240,7 @@ def get_workflows():
         for row in rows:
             wf = dict()
             wf['workflow-template'] = row[2]
-            wf['type']= row[5]
+            wf['type']= row[6]
             wf['GUID'] = row[0]
             wf['status'] = util.get_wf_status(row[3], row[0])
             wf['metadata'] = row[4]
@@ -564,7 +564,8 @@ def run_workflow():
         return {
             "success": True
         }
-    except:
+    except Exception as e:
+        print(e)
         return{
             "success":True,
             "message": "Server error."
