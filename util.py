@@ -104,19 +104,8 @@ def getGirderIds(input_dir):
 def downloadGirderFile(girderId, pathToInputs, girder_api_key):
     gc = girder_client.GirderClient(apiUrl=config.GIRDER_API)
     gc.authenticate(apiKey=girder_api_key)
-    oldFiles = set(os.listdir(pathToInputs))
-
     girderFile = gc.getFile(girderId)
-    gc.downloadFile(girderId, pathToInputs)
-
-    newFiles = set(os.listdir(pathToInputs))
-
-    for nf in newFiles:
-        if (nf not in oldFiles):
-            filename = os.path.abspath(os.path.join(pathToInputs, nf))
-            renamed = os.path.abspath(os.path.join(pathToInputs, girderFile['name']))
-            os.rename(filename, renamed)
-    print(os.listdir(pathToInputs))
+    gc.downloadFile(girderFile['itemId'], pathToInputs)
 
 
 def uploadToGirder(folderPath, girder_api_key, girder_parent_id):
