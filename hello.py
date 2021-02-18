@@ -544,7 +544,7 @@ def run_workflow():
                 
             pid = process.pid
             
-            c.execute('UPDATE workflows SET PID='+str(pid)+', SET creationDate="'+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+'" WHERE GUID="'+GUID+'"')
+            c.execute('UPDATE workflows SET PID='+str(pid)+', creationDate="'+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+'" WHERE GUID="'+GUID+'"')
             
             conn.commit()
         elif (req_data['type'] == 'toil'):
