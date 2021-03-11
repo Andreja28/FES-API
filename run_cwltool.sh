@@ -16,4 +16,4 @@ fi
 
 `cwltool $readOnly $workflow $inputs`
 cwd=`pwd`
-python3 $pythonScript $cwd $GUID $API_KEY 
+python3 $pythonScript $GUID $API_KEY 
