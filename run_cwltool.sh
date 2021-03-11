@@ -15,5 +15,5 @@ fi
 
 `cwltool $readOnly $workflow $inputs`
 cwd=`pwd`
-cd rootFolder
+cd $rootFolder
 python3 girder-upload.py $GUID $API_KEY $cwd
