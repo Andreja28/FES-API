@@ -539,7 +539,7 @@ def run_workflow():
             cwl_path = os.path.abspath(os.path.join(config.CWL,req_data['workflow'], 'workflow.cwl'))
             yaml_path = os.path.abspath(os.path.join(input_path, 'inputs.yaml'))
 
-            if (util.ifReadOnlyWf(req_data['worfklow'])):
+            if (util.ifReadOnlyWf(req_data['workflow'])):
                 flag = "y"
             else:
                 flag = "n"
