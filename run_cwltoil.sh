@@ -1,3 +1,4 @@
+#!/bin/bash
 jobStore=$2
 logFile=$3
 workflow=$4

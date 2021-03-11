@@ -1,3 +1,4 @@
+#!/bin/bash
 toil=$1
 jobStore=$2
 inputs=$3

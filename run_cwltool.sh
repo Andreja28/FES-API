@@ -1,3 +1,4 @@
+#!/bin/bash
 workflow=$2
 inputs=$3
 GUID=$4
