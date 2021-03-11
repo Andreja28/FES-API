@@ -4,6 +4,8 @@ inputs=$3
 GUID=$4
 API_KEY=$5
 
+pythonScript=$6
+
 if [ $1 == "y" ]
 then
     readOnly="--no-read-only --no-match-user"
@@ -14,4 +16,4 @@ fi
 
 `cwltool $readOnly $workflow $inputs`
 cwd=`pwd`
-python3 girder-upload.py $cwd $GUID $API_KEY 
+python3 $pythonScript $cwd $GUID $API_KEY 
