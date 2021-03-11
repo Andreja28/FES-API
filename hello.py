@@ -531,7 +531,7 @@ def run_workflow():
                 "message": "Workflow has already been run."
             }
 
-        pythonScript = os.path.abspath('girder-upload.py')
+        rootFolder = os.path.abspath(os.getcwd())
         if (req_data['type'] == 'cwl'):
 
             os.mkdir(out_dir)
@@ -547,12 +547,12 @@ def run_workflow():
             if (config.CWL_RUNNER == 'toil-cwl-runner'):
                 script = os.path.abspath('run_cwltoil.sh')
 
-                processArgs = ['bash', script, flag, os.path.abspath(job_store_path), os.path.abspath(log_file_path), cwl_path, yaml_path, GUID, girderApiKey, pythonScript]
+                processArgs = ['bash', script, flag, os.path.abspath(job_store_path), os.path.abspath(log_file_path), cwl_path, yaml_path, GUID, girderApiKey, rootFolder]
                 process = subprocess.Popen(processArgs, cwd=os.path.abspath(out_dir))
             else:
 
                 script = os.path.abspath('run_cwltool.sh')
-                processArgs = ['bash', script, flag, cwl_path, yaml_path, GUID, girderApiKey, pythonScript]
+                processArgs = ['bash', script, flag, cwl_path, yaml_path, GUID, girderApiKey, rootFolder]
                 process = subprocess.Popen(processArgs, cwd=os.path.abspath(out_dir), stdout = open(log_file_path,'w'), stderr = open(log_file_path,'w'))
             
             pid = process.pid
@@ -566,7 +566,7 @@ def run_workflow():
             os.mkdir(log_file_path)
             log_file_path = os.path.join(log_file_path,"log.txt")
             toil_path = os.path.join(config.TOIL, req_data["workflow"] , 'main.py')
-            processArgs = ["bash", "run_toil.sh", toil_path, job_store_path, input_path, out_dir, os.path.abspath(log_file_path), GUID, girderApiKey, pythonScript]
+            processArgs = ["bash", "run_toil.sh", toil_path, job_store_path, input_path, out_dir, os.path.abspath(log_file_path), GUID, girderApiKey, rootFolder]
             
             process = subprocess.Popen(processArgs)
             pid = process.pid
