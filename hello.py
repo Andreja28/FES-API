@@ -544,10 +544,13 @@ def run_workflow():
             else:
                 flag = "n"
             if (config.CWL_RUNNER == 'toil-cwl-runner'):
-                processArgs = ['bash', 'run_cwltoil.sh', flag, os.path.abspath(job_store_path), os.path.abspath(log_file_path), cwl_path, yaml_path, GUID, girderApiKey]
+                script = os.path.abspath('run_cwltoil.sh')
+                processArgs = ['bash', script, flag, os.path.abspath(job_store_path), os.path.abspath(log_file_path), cwl_path, yaml_path, GUID, girderApiKey]
                 process = subprocess.Popen(processArgs, cwd=os.path.abspath(out_dir))
             else:
-                processArgs = ['bash', 'run_cwltool.sh', flag, cwl_path, yaml_path, GUID, girderApiKey]
+
+                script = os.path.abspath('run_cwltool.sh')
+                processArgs = ['bash', script, flag, cwl_path, yaml_path, GUID, girderApiKey]
                 process = subprocess.Popen(processArgs, cwd=os.path.abspath(out_dir), stdout = open(log_file_path,'w'), stderr = open(log_file_path,'w'))
             
             pid = process.pid
