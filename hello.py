@@ -543,7 +543,7 @@ def run_workflow():
                 flag = "y"
             else:
                 flag = "n"
-            if (config.CWL_RUNNER = 'toil-cwl-runner'):
+            if (config.CWL_RUNNER == 'toil-cwl-runner'):
                 processArgs = ['bash', 'run_cwltoil.sh', flag, os.path.abspath(job_store_path), os.path.abspath(log_file_path), cwl_path, yaml_path, GUID, girderApiKey]
                 process = subprocess.Popen(processArgs, cwd=os.path.abspath(out_dir))
             else:
