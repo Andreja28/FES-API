@@ -329,6 +329,11 @@ def get_workflow_info():
 
 @app.route('/create-workflow', methods=['POST'])
 def create_wf():
+    if request.headers.get("girder-api-key") is None:
+        return {
+            "success": False,
+            "message": "Bad request"
+        }
     
     try:
         req_data = dict(request.form)
@@ -474,6 +479,13 @@ def create_wf():
 
 @app.route('/run-workflow', methods=['POST'])
 def run_workflow():
+
+    if request.headers.get("girder-api-key") is None:
+        return {
+            "success": False,
+            "message": "Bad request"
+        }
+    girderApiKey = request.headers.get("girder-api-key")
     req_data = request.get_json()
 
     if ('GUID' not in req_data.keys()):
@@ -527,21 +539,17 @@ def run_workflow():
             cwl_path = os.path.abspath(os.path.join(config.CWL,req_data['workflow'], 'workflow.cwl'))
             yaml_path = os.path.abspath(os.path.join(input_path, 'inputs.yaml'))
 
-
-
-
-            if (req_data['workflow'] == 'annotation' or req_data['workflow'] == 'unified' or req_data['workflow'] == 'graph' or req_data['workflow'] == 'optim-aps'):
-                if (config.CWL_RUNNER == 'toil-cwl-runner'):
-                    process = subprocess.Popen([config.CWL_RUNNER,'--no-match-user','--no-read-only','--jobStore',os.path.abspath(job_store_path),'--logFile',os.path.abspath(log_file_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
-                else:
-                    process = subprocess.Popen([config.CWL_RUNNER,'--no-match-user','--no-read-only', cwl_path, yaml_path], cwd=os.path.abspath(out_dir), stdout = open(log_file_path,'w'), stderr = open(log_file_path,'w'))
-                
+            if (util.ifReadOnlyWf(req_data['worfklow'])):
+                flag = "y"
             else:
-                if (config.CWL_RUNNER == 'toil-cwl-runner'):
-                    process = subprocess.Popen([config.CWL_RUNNER,'--jobStore',os.path.abspath(job_store_path),'--logFile',os.path.abspath(log_file_path), cwl_path, yaml_path], cwd=os.path.abspath(out_dir))
-                else:
-                    process = subprocess.Popen([config.CWL_RUNNER, cwl_path, yaml_path], cwd=os.path.abspath(out_dir), stdout = open(log_file_path,'w'), stderr = open(log_file_path,'w'))
-                
+                flag = "n"
+            if (config.CWL_RUNNER = 'toil-cwl-runner'):
+                processArgs = ['bash', 'run_cwltoil.sh', flag, os.path.abspath(job_store_path), os.path.abspath(log_file_path), cwl_path, yaml_path, GUID, girderApiKey]
+                process = subprocess.Popen(processArgs, cwd=os.path.abspath(out_dir))
+            else:
+                processArgs = ['bash', 'run_cwltool.sh', flag, cwl_path, yaml_path, GUID, girderApiKey]
+                process = subprocess.Popen(processArgs, cwd=os.path.abspath(out_dir), stdout = open(log_file_path,'w'), stderr = open(log_file_path,'w'))
+            
             pid = process.pid
             
             c.execute('UPDATE workflows SET PID='+str(pid)+', creationDate="'+datetime.now().isoformat("T")+'" WHERE GUID="'+GUID+'"')
@@ -553,8 +561,9 @@ def run_workflow():
             os.mkdir(log_file_path)
             log_file_path = os.path.join(log_file_path,"log.txt")
             toil_path = os.path.join(config.TOIL, req_data["workflow"] , 'main.py')
+            processArgs = ["bash", "run_toil.sh", toil_path, job_store_path, input_path, out_dir, os.path.abspath(log_file_path), GUID, girderApiKey]
             
-            process = subprocess.Popen(['python', toil_path, job_store_path,input_path,out_dir,'--logFile',os.path.abspath(log_file_path)])
+            process = subprocess.Popen(processArgs)
             pid = process.pid
             
             c.execute('UPDATE workflows SET PID='+str(pid)+', creationDate="'+datetime.now().isoformat("T")+'" WHERE GUID="'+GUID+'"')

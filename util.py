@@ -1,4 +1,4 @@
-import os, psutil, time, signal, sqlite3, config, subprocess
+import os, psutil, time, signal, sqlite3, config, subprocess, json
 from ruamel.yaml import YAML
 
 import girder_client
@@ -117,3 +117,11 @@ def uploadToGirder(folderPath, girder_api_key, girder_parent_id):
 
     ls = gc.listFolder(girder_parent_id, name=folderPath.split("/")[-1])
     return list(ls)[0]
+
+def ifReadOnlyWf(workflow):
+    jsonFile = json.load(open("read-only-wfs.json",'r'))
+    wfs = jsonFile['wfs']
+
+    if (workflow in wfs):
+        return True
+    return False
