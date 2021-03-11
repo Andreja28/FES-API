@@ -5,6 +5,7 @@ import util
 
 guid = sys.argv[1]
 girder_api_key = sys.argv[2]
+outputs = sys.argv[3]
 if (not os.listdir(os.getcwd())):
     sys.exit()
 
@@ -17,7 +18,4 @@ outFolder = gc.loadOrCreateFolder('workflow-outputs', privateFolder['_id'], pare
 wf = util.get_wf(guid)
 wfFolder = gc.loadOrCreateFolder(wf, outFolder['_id'], parentType="folder")
 
-guid="guidProba2"
-guidFolder = gc.loadOrCreateFolder(guid, wfFolder['_id'], parentType="folder")
-
-gc.upload(os.getcwd(), guidFolder['_id'])
+gc.upload(outputs, wfFolder['_id'])

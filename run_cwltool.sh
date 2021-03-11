@@ -1,10 +1,9 @@
 workflow=$2
 inputs=$3
-
 GUID=$4
 API_KEY=$5
 
-pythonScript=$6
+rootFolder=$6
 
 if [ $1 == "y" ]
 then
@@ -16,4 +15,5 @@ fi
 
 `cwltool $readOnly $workflow $inputs`
 cwd=`pwd`
-python3 $pythonScript $GUID $API_KEY 
+cd rootFolder
+python3 girder-upload.py $GUID $API_KEY $cwd
