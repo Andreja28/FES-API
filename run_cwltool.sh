@@ -13,7 +13,7 @@ else
 fi
 
 
-`cwltool $readOnly $workflow $inputs`
-cwd=`pwd`
-cd $rootFolder
+cwltool $readOnly $workflow $inputs
+cwd=$(pwd)
+cd ${rootFolder}
 python3 girder-upload.py $GUID $API_KEY $cwd

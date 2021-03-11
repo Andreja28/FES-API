@@ -16,7 +16,7 @@ else
 fi
 
 
-`toil-cwl-runner $readOnly --jobStore $jobStore --logFile $logFile $workflow $inputs`
-cwd=`pwd`
-cd $rootFolder
+toil-cwl-runner $readOnly --jobStore $jobStore --logFile $logFile $workflow $inputs
+cwd=$(pwd)
+cd ${rootFolder}
 python3 $pythonScript $GUID $API_KEY $cwd
