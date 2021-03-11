@@ -15,7 +15,7 @@ userId = gc.authenticate(apiKey=girder_api_key)['_id']
 privateFolder = gc.loadOrCreateFolder('Private', userId, parentType="user")
 
 outFolder = gc.loadOrCreateFolder('workflow-outputs', privateFolder['_id'], parentType="folder")
-wf = util.get_wf(guid)
+wf = util.get_wf(guid)[2]
 wfFolder = gc.loadOrCreateFolder(wf, outFolder['_id'], parentType="folder")
 
 gc.upload(outputs, wfFolder['_id'])
