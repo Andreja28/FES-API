@@ -39,6 +39,7 @@ def terminate(GUID, pid, flag, timeout = 0):
     time.sleep(timeout)
     parent = psutil.Process(pid)
     for child in parent.children(recursive=True):  # or parent.children() for recursive=False
+        print(child)
         child.kill()
     parent.kill()
     conn = sqlite3.connect(config.DATABASE)
