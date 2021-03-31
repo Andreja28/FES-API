@@ -38,7 +38,7 @@ def get_wf_status(pid, guid):
 def terminate(GUID, pid, flag, timeout = 0):
     time.sleep(timeout)
     parent = psutil.Process(pid)
-    for child in parent.children():  # or parent.children() for recursive=False
+    for child in parent.children(recursive=True):  # or parent.children() for recursive=False
         child.kill()
     parent.kill()
     conn = sqlite3.connect(config.DATABASE)
