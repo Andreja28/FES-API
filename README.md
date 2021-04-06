@@ -5,10 +5,11 @@
 ```bash
 sudo pip3 install virtualenv
 cd FES-API
-virtualenv -p python3 venv
-python3 -m virtualenv venv
+virtualenv  venv
 . venv/bin/activate
-pip install Flask
+pip3 install flask
+pip3 install girder-client
+pip3 install toil[all]
 export FLASK_APP=hello.py
 flask run
 ```
