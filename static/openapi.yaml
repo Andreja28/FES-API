@@ -220,7 +220,7 @@ paths:
         required: true
         type: file
       - in: formData
-        name: inputs-zip
+        name: input_zip
         description: "Zip file containing all the required input files for the workflow."
         required: true
         type: file
