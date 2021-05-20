@@ -2,6 +2,7 @@ CWL="./../cloud-workflows/cwl/"
 TOIL="./../cloud-workflows/toil/"
 
 CWL_RUNNER="cwltool"
+MESOS_NODE_TYPE="t3.medium"
 
 RESULTS = "./results"
 RUNNING_WORKFLOWS = "./running"

@@ -549,6 +549,12 @@ def run_workflow():
 
                 processArgs = ['bash', script, flag, os.path.abspath(job_store_path), os.path.abspath(log_file_path), cwl_path, yaml_path, GUID, girderApiKey, rootFolder]
                 process = subprocess.Popen(processArgs, cwd=os.path.abspath(out_dir))
+            elif (config.CWL_RUNNER == 'mesos'):
+                script = os.path.abspath('run_mesos.sh')
+
+                processArgs = ['bash', script, flag, os.path.abspath(job_store_path), os.path.abspath(log_file_path), cwl_path, yaml_path, GUID, girderApiKey,config.MESOS_NODE_TYPE, rootFolder]
+                process = subprocess.Popen(processArgs, cwd=os.path.abspath(out_dir))
+           
             else:
 
                 script = os.path.abspath('run_cwltool.sh')
