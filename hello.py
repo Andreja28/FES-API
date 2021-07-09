@@ -329,11 +329,7 @@ def get_workflow_info():
 
 @app.route('/create-workflow', methods=['POST'])
 def create_wf():
-    if request.headers.get("girder-api-key") is None:
-        return {
-            "success": False,
-            "message": "Bad request"
-        }
+    
     
     try:
         req_data = dict(request.form)
@@ -480,12 +476,12 @@ def create_wf():
 @app.route('/run-workflow', methods=['POST'])
 def run_workflow():
 
-    if request.headers.get("girder-api-key") is None:
-        return {
-            "success": False,
-            "message": "Bad request"
-        }
+    
     girderApiKey = request.headers.get("girder-api-key")
+
+    if (girderApiKey is None):
+        girderApiKey = "--"
+
     req_data = request.get_json()
 
     if ('GUID' not in req_data.keys()):

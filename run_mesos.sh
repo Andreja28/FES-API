@@ -18,7 +18,7 @@ else
 fi
 
 
-toil-cwl-runner $readOnly --jobStore aws:us-west-2:$jobStore --provisioner aws --batchSystem mesos --nodeType $nodeType --realTimeLogging --logInfo --disableCaching False --logFile $logFile $workflow $inputs
+toil-cwl-runner $readOnly --jobStore aws:us-west-2:$GUID --provisioner aws --batchSystem mesos --nodeType $nodeType --realTimeLogging --logInfo --disableCaching False --logFile $logFile $workflow $inputs
 cwd=$(pwd)
 cd ${rootFolder}
-python3 $pythonScript $GUID $API_KEY $cwd
+python3 $rootFolder/girder-upload.py $GUID $API_KEY $cwd
