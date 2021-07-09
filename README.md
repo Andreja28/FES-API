@@ -110,7 +110,7 @@ This request specifies which workflow will be run and uploads two files:
 * `input_zip` (optional) - `.zip` file containing all the input files for the workflow if neccessary
 
 *Note:*
-Yaml file that determines the inputs od the workflow can have additional field `girderIds`. This field is an array consisting of file ids stored on Girder. All the files specified in this field will be downloaded from Girder platform if they are not sent in the `input_zip` field.
+Yaml file that determines the inputs od the workflow can have additional field `girderIds`. This field is an array consisting of file ids stored on Girder. All the files specified in this field will be downloaded from Girder platform if they are not sent in the `input_zip` field. Header `girder-api-key` containing users api-key is needed in order to download the specified files.
 
 Creating workflow from `toil` template:
 ```bash
@@ -218,6 +218,9 @@ Response:
     "success": true
 }
 ```
+
+*Note:*
+If `girder-api-key` header is specified outputs of the workflow will be uploaded to the users private space on Girder.
 
 ### Get status
 
