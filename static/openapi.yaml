@@ -311,7 +311,7 @@ paths:
             application/zip:
               schema:
                 type: file
-  /get-workflow-metadata:
+  /get-output-metadata:
     get:
       parameters: 
         - in: query
