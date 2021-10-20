@@ -2,7 +2,7 @@ from flask import Flask, request, send_file, render_template
 from markupsafe import escape
 import os, sys, time, subprocess, glob, uuid, config, zipfile, sqlite3, shutil, signal, threading, multiprocessing, psutil
 from datetime import datetime
-import util
+import util, json
 from xml.etree.ElementTree import XML, fromstring
 
 from ruamel.yaml import YAML
@@ -472,7 +472,6 @@ def create_wf():
             "message": "Server error."
         }
 
-
 @app.route('/run-workflow', methods=['POST'])
 def run_workflow():
 
@@ -679,7 +678,6 @@ def get_status():
             "status": status
         }
 
-
 @app.route('/get-results', methods=['GET'])
 def get_results():
     
@@ -730,8 +728,6 @@ def get_results():
             "success": False,
             "message": "Workflow either doesn't exist or it hasn't been run."
         }
-
-
 
 @app.route('/upload-results', methods=['POST'])
 def upload_results():
@@ -802,9 +798,6 @@ def upload_results():
             "message": "Workflow either doesn't exist or it hasn't been run."
         }
 
-
-
-
 @app.route('/stop-workflow', methods=['POST'])
 def stop_workflow():
     
@@ -862,7 +855,6 @@ def stop_workflow():
             "success":True,
             "message": "Workflow terminated."
         }
-
 
 @app.route('/delete-workflow', methods=['POST'])
 def delete_wf():
@@ -1020,3 +1012,129 @@ def download_wf():
             "success": False,
             "message": "Server error."
         }
+
+@app.route('/get-output-file', methods=['GET'])
+def download_file():
+    try:
+        GUID = request.args['GUID']
+        if request.args['GUID'] == None:
+            return{
+                "success": False,
+                "message": "GUID field not set."
+            }
+        
+        if request.args['filepath'] == None:
+            return{
+                "success": False,
+                "message": "Filepath not sent."
+            }
+        
+        pid = util.get_wf_pid(GUID)
+        status = util.get_wf_status(pid,GUID)
+        if (not status == 'FINISHED_OK'):
+            return {
+                "success": False,
+                "message": "Workflow does not have a FINISHED_OK status."
+            }
+        
+        filepath = os.path.join(util.getWfOutputDir(GUID),request.args['filepath'])
+        return send_file(os.path.abspath(filepath))
+    except Exception as e:
+        print(e)
+        return {
+            "success": False,
+            "message": "Server error."
+        }
+
+@app.route('/get-output-metadata', methods=['GET'])
+def get_output_struct():
+    try:
+        GUID = request.args['GUID']
+        if request.args['GUID'] == None:
+            return{
+                "success": False,
+                "message": "GUID field not set."
+            }
+        
+        conn = sqlite3.connect(config.DATABASE)
+        c = conn.cursor()
+        c.execute("SELECT * FROM workflows where GUID='"+GUID+"'")
+        row = c.fetchone()
+
+        if (row == None):
+            conn.close()
+            return{
+                "success": False,
+                "message": "Workflow does't exist"
+            }
+        
+        typeID = row[1]
+        wf = dict()
+        wf['workflow-template'] = row[2]
+        wf['GUID'] = row[0]
+        wf['status'] = util.get_wf_status(row[3], GUID)
+        wf['metadata'] = row[4]
+        wf['creationDate'] = row[5]
+
+        
+        c.execute('SELECT * FROM Types WHERE ID='+str(typeID))
+        row = c.fetchone()
+        if (row is not None):
+            wf['type']=row[1]
+        conn.close()
+
+        if (not wf['status'] == 'FINISHED_OK'):
+            return {
+                "success": False,
+                "message": "Workflow does not have a FINISHED_OK status."
+            }
+        
+        
+        extensions = json.loads(open("extesions.json").read())
+        
+        
+        outputFiles = dict()
+        for key in extensions:
+            outputFiles[key] = list()
+        outputFiles['other'] = list()
+
+        for root, dirs, files in os.walk(util.getWfOutputDir(GUID)):
+            for f in files:
+                link = util.getDownloadLink(GUID,os.path.relpath(os.path.join(root,f),util.getWfOutputDir(GUID)))
+
+                foundFlag = False
+                for ext in extensions:
+                    if f.endswith(tuple(extensions[ext])):
+                        foundFlag = True
+                        outputFiles[ext].append({
+                            "filename": f,
+                            "link": request.host_url + link
+                        })
+                        continue
+                if (not foundFlag):
+                    outputFiles['other'].append({
+                            "filename": f,
+                            "link": request.host_url + link
+                    })
+        
+        empty = list()
+        for ext in outputFiles:
+             if not outputFiles[ext]:
+                empty.append(ext)
+
+        for ext in empty:
+            outputFiles.pop(ext)
+        wf=dict()
+        wf['outputs'] = outputFiles
+
+        return {
+            "success":True,
+            "workflow":wf
+        }
+    except Exception as e:
+        print(e)
+        return {
+            "success": False,
+            "message": "Server error."
+        }
+

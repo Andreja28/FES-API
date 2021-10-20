@@ -1,0 +1,5 @@
+{
+    "video":[".ogv"],
+    "data": [".csv",".txt"],
+    "model": [".vtk"]
+}

@@ -1,7 +1,7 @@
 import os, psutil, time, signal, sqlite3, config, subprocess, json
 from ruamel.yaml import YAML
-
 import girder_client
+
 def check_pid(pid):
     try:
         os.kill(pid, 0)
@@ -33,7 +33,6 @@ def get_wf_status(pid, guid):
             return "FINISHED_OK"
 
     return "FINISHED_ERROR"
-
 
 def terminate(GUID, pid, flag, timeout = 0):
     time.sleep(timeout)
@@ -70,7 +69,6 @@ def get_wf(GUID):
 
     conn.close()
     return row
-
 
 def validate_yaml(input_dir):
     yaml = YAML()
@@ -111,7 +109,6 @@ def downloadGirderFile(girderId, pathToInputs, girder_api_key):
     girderFile = gc.getFile(girderId)
     gc.downloadItem(girderFile['itemId'], pathToInputs)
 
-
 def uploadToGirder(folderPath, girder_api_key, girder_parent_id):
     gc = girder_client.GirderClient(apiUrl=config.GIRDER_API)
     gc.authenticate(apiKey=girder_api_key)
@@ -129,3 +126,10 @@ def ifReadOnlyWf(workflow):
     if (workflow in wfs):
         return True
     return False
+
+def getWfOutputDir(GUID):
+    return os.path.join(config.RESULTS,GUID)
+
+def getDownloadLink(GUID,path):
+    link = "get-output-file?GUID="+GUID+"&filepath="+path
+    return link
