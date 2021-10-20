@@ -1124,7 +1124,7 @@ def get_output_struct():
 
         for ext in empty:
             outputFiles.pop(ext)
-        wf=dict()
+
         wf['outputs'] = outputFiles
 
         return {
