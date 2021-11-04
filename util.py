@@ -133,3 +133,7 @@ def getWfOutputDir(GUID):
 def getDownloadLink(GUID,path):
     link = "get-output-file?GUID="+GUID+"&filepath="+path
     return link
+
+def getZipLink(GUID):
+    link = "get-results?GUID="+GUID
+    return link
