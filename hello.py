@@ -1126,7 +1126,7 @@ def get_output_struct():
             outputFiles.pop(ext)
 
         wf['outputs'] = outputFiles
-        wf["downloadOutput"] = request.host_url + util.getZipLink(GUID)
+        wf["downloadOutputURL"] = request.host_url + util.getZipLink(GUID)
         return {
             "success":True,
             "workflow":wf
