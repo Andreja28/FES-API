@@ -265,6 +265,68 @@ Response:
 
 ```
 
+### Download single output file
+
+```bash
+curl 127.0.0.1:5000/get-output-file?GUID=$GUID --output file
+```
+
+Response:
+
+```bash
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 9350k  100 9350k    0     0  84.8M      0 --:--:-- --:--:-- --:--:-- 85.3M
+
+```
+
+### Get output metadata
+
+Request:
+
+```bash 
+curl 127.0.0.1:5000/get-output-metadata?GUID=$GUID 
+```
+
+
+Response:
+```json
+    {
+        "success": true,
+        "workflow": 
+        {
+            "GUID": "$GUID",
+            "creationDate": "2021-09-22T14:25:48.277536",
+            "downloadOutput": "http://127.0.0.1:5000/get-results?GUID=$GUID",
+            "metadata": null,
+            "outputs": 
+            {
+                "ext1": [
+                    {
+                        "filename": "file1.ext1",
+                        "link": "http://127.0.0.1:5000/get-output-file?GUID=$GUID&filepath=file1.ext1"
+                    },
+                    {
+                        "filename": "file2.ext1",
+                        "link": "http://127.0.0.1:5000/get-output-file?GUID=$GUID&filepath=file2.ext1"
+                    }
+                ],
+                "ext2": [
+                    {
+                        "filename": "file1.ext2",
+                        "link": "http://127.0.0.1:5000/get-output-file?GUID=$GUID&filepath=file1.ext2"
+                    },
+                    {
+                        "filename": "file2.ext2",
+                        "link": "http://127.0.0.1:5000/get-output-file?GUID=$GUID&filepath=file2.ext2"
+                    }
+                ]
+            }
+        }
+    }
+```
+
+
 ### Upload results to Girder
 
 This request takes only `GUID` as input:
