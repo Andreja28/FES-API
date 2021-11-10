@@ -1099,7 +1099,8 @@ def get_output_struct():
         outputFiles['other'] = list()
 
         for root, dirs, files in os.walk(util.getWfOutputDir(GUID)):
-            for f in files.sort():
+            files.sort()
+            for f in files:
                 link = util.getDownloadLink(GUID,os.path.relpath(os.path.join(root,f),util.getWfOutputDir(GUID)))
 
                 foundFlag = False
