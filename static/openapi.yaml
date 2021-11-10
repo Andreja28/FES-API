@@ -303,7 +303,7 @@ paths:
           description: GUID of the workflow
       summary: "Download entire workflow"
       description: ""
-      operationId: "getLog"
+      operationId: "DownloadWf"
       responses:
         "200":
           description: "Get workflow log"
@@ -323,7 +323,7 @@ paths:
           description: GUID of the workflow
       summary: "Get schema of the workflow outputs alognside with download links for each file"
       description: ""
-      operationId: "getLog"
+      operationId: "getOutputMetadata"
       responses:
         "200":
           description: "Get workflow log"
@@ -349,7 +349,7 @@ paths:
           description: Relative path of the file in the workflow output directory
       summary: "Download specific output of the workflow"
       description: ""
-      operationId: "getLog"
+      operationId: "getOutputFile"
       responses:
         "200":
           description: "Get workflow log"
