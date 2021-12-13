@@ -2,8 +2,8 @@ from flask import Flask, request, send_file, render_template
 from markupsafe import escape
 import os, sys, time, subprocess, glob, uuid, config, zipfile, sqlite3, shutil, signal, threading, multiprocessing, psutil
 from datetime import datetime
-import util, json
-from xml.etree.ElementTree import XML, fromstring
+import util, json, re
+import xml.etree.ElementTree as ET
 
 from ruamel.yaml import YAML
 
@@ -252,7 +252,7 @@ def get_workflows():
             elif (status is None and userID is not None):
                 if(wf['metadata'] is not None):
                     try:
-                        tree = fromstring(wf['metadata'])
+                        tree = ET.fromstring(wf['metadata'])
                     except:
                         continue
                     if tree.find('userID').text == userID:
@@ -263,7 +263,7 @@ def get_workflows():
             else:
                 if (wf['status']==status and wf['metadata'] is not None):
                     try:
-                        tree = fromstring(wf['metadata'])
+                        tree = ET.fromstring(wf['metadata'])
                     except:
                         continue
                     if tree.find('userID').text == userID:
@@ -443,14 +443,29 @@ def create_wf():
             typeId = 1
         else:
             typeId = 2
+
+        nowDate = datetime.now()
+        currentDate = nowDate.isoformat("T")
+
         if ('metadata' in req_data.keys() and req_data['metadata'] is not None):
-            metadata = req_data['metadata']
+            print(req_data['metadata'])
+            try:
+                tree = ET.fromstring(req_data['metadata'])
+                sanitizedName = re.sub(r'[^0-9a-zA-Z]','_',tree.find('comments').text).strip('_')
+                sanitizedName = re.sub("\_+","_",sanitizedName)
+                outputName = nowDate.isoformat(sep='_', timespec='seconds')+"_" + sanitizedName
+
+                outputElement = ET.SubElement(tree, 'output')
+                outputElement.text = outputName
+                metadata = ET.tostring(tree).decode('utf-8')
+            except Exception as e:
+                print(e)
+                pass
+            
         else:
             metadata = None
         
         c = conn.cursor()
-
-        currentDate = datetime.now().isoformat("T")
         
         if (metadata is not None):
             c.execute("INSERT INTO workflows VALUES ('"+str(GUID)+"',"+str(typeId)+",'"+req_data['workflow-template']+"',NULL, '"+metadata+"', '"+currentDate+"')")

@@ -1,6 +1,8 @@
 import os, psutil, time, signal, sqlite3, config, subprocess, json
 from ruamel.yaml import YAML
 import girder_client
+import xml.etree.ElementTree as ET
+
 
 def check_pid(pid):
     try:
@@ -137,3 +139,13 @@ def getDownloadLink(GUID,path):
 def getZipLink(GUID):
     link = "get-results?GUID="+GUID
     return link
+
+def getGirderOutputDir(wf):
+    print(wf)
+    if (wf[4] is None):
+        return wf[0]
+    try:
+        tree = ET.fromstring(wf[4])
+        return tree.find('output').text
+    except:
+        return wf[0]
