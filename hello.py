@@ -873,6 +873,7 @@ def stop_workflow():
 
 @app.route('/delete-workflow', methods=['POST'])
 def delete_wf():
+    girderApiKey = request.headers.get("girder-api-key")
     req_data = request.get_json()
     if 'GUID' not in req_data.keys():
         return{
@@ -913,6 +914,9 @@ def delete_wf():
             shutil.rmtree(output_dir)
         if (os.path.isdir(log_dir)):
             shutil.rmtree(log_dir)
+
+        if (girderApiKey is not None):
+            util.deleteFolderFromGirder(row, girderApiKey)
     
         c.execute('DELETE FROM workflows WHERE GUID="'+GUID+'"')
         conn.commit()

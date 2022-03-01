@@ -2,6 +2,7 @@ import os, psutil, time, signal, sqlite3, config, subprocess, json
 from ruamel.yaml import YAML
 import girder_client
 import xml.etree.ElementTree as ET
+import girder_client
 
 
 def check_pid(pid):
@@ -141,7 +142,7 @@ def getZipLink(GUID):
     return link
 
 def getGirderOutputDir(wf):
-    print(wf)
+    #print(wf)
     if (wf[4] is None):
         return wf[0]
     try:
@@ -149,3 +150,21 @@ def getGirderOutputDir(wf):
         return tree.find('output').text
     except:
         return wf[0]
+
+def deleteFolderFromGirder(wf, girder_api_key):
+    
+    try:
+        gc = girder_client.GirderClient(apiUrl=config.GIRDER_API)
+        userId = gc.authenticate(apiKey=girder_api_key)['_id']
+        privateFolder = gc.loadOrCreateFolder('Private', userId, parentType="user")
+
+        outFolder = gc.loadOrCreateFolder('workflow-outputs', privateFolder['_id'], parentType="folder")
+        #wf = util.get_wf(guid)
+        wfFolder = gc.loadOrCreateFolder(wf[2], outFolder['_id'], parentType="folder")
+
+        outputFolder = gc.loadOrCreateFolder(util.getGirderOutputDir(wf), wfFolder['_id'], parentType="folder")
+        gc.delete(outputFolder)
+        for item in os.listdir(outputs):
+            gc.upload(os.path.join(outputs,item), outputFolder['_id'])
+    except:
+        return
