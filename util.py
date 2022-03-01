@@ -159,12 +159,10 @@ def deleteFolderFromGirder(wf, girder_api_key):
         privateFolder = gc.loadOrCreateFolder('Private', userId, parentType="user")
 
         outFolder = gc.loadOrCreateFolder('workflow-outputs', privateFolder['_id'], parentType="folder")
-        #wf = util.get_wf(guid)
+        wf = util.get_wf(guid)
         wfFolder = gc.loadOrCreateFolder(wf[2], outFolder['_id'], parentType="folder")
 
         outputFolder = gc.loadOrCreateFolder(util.getGirderOutputDir(wf), wfFolder['_id'], parentType="folder")
-        gc.delete(outputFolder)
-        for item in os.listdir(outputs):
-            gc.upload(os.path.join(outputs,item), outputFolder['_id'])
+        gc.delete("folder/"+outputFolder['_id'])
     except:
         return
