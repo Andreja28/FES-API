@@ -134,7 +134,8 @@ def template_descriptions():
                 c.execute(query)
                 conn.commit()
                 conn.close()
-            except :
+            except Exception as e :
+                print(e)
                 return {
                     "success": False,
                     "message": "Server error."
@@ -179,7 +180,8 @@ def template_descriptions():
                 c.execute(query)
                 conn.commit()
                 conn.close()
-            except :
+            except Exception as e :
+                print(e)
                 return {
                     "success": False,
                     "message": "Server error."
@@ -204,7 +206,8 @@ def template_descriptions():
             c.execute(query)
             conn.commit()
             conn.close()
-        except :
+        except Exception as e :
+            print(e)
             return {
                 "success": False,
                 "message": "Server error."
@@ -253,7 +256,8 @@ def get_workflows():
                 if(wf['metadata'] is not None):
                     try:
                         tree = ET.fromstring(wf['metadata'])
-                    except:
+                    except Exception as e:
+                        print(e)
                         continue
                     if tree.find('userID').text == userID:
                         wfs.append(wf)
@@ -264,7 +268,8 @@ def get_workflows():
                 if (wf['status']==status and wf['metadata'] is not None):
                     try:
                         tree = ET.fromstring(wf['metadata'])
-                    except:
+                    except Exception as e:
+                        print(e)
                         continue
                     if tree.find('userID').text == userID:
                         wfs.append(wf)
@@ -273,7 +278,8 @@ def get_workflows():
             "success":True,
             "workflows":wfs
         }
-    except:
+    except Exception as e:
+        print(e)
         return {
             "success":False,
             "message":"Server error."
@@ -321,7 +327,8 @@ def get_workflow_info():
             "success":True,
             "workflow":wf
         }
-    except:
+    except Exception as e:
+        print(e)
         return {
             "success":False,
             "message":"Server error."
@@ -333,7 +340,8 @@ def create_wf():
     
     try:
         req_data = dict(request.form)
-    except:
+    except Exception as e:
+        print(e)
         return{
             "success": False,
             "message": "Bad request."
@@ -409,7 +417,8 @@ def create_wf():
             if zip_field in request.files:
                 with zipfile.ZipFile(inputs, 'r') as zip_ref:
                     zip_ref.extractall(in_dir)
-        except:
+        except Exception as e:
+            print(e)
             shutil.rmtree(in_dir)
             return{
                 "success": False,
@@ -448,7 +457,6 @@ def create_wf():
         currentDate = nowDate.isoformat("T")
 
         if ('metadata' in req_data.keys() and req_data['metadata'] is not None):
-            print(req_data['metadata'])
             try:
                 tree = ET.fromstring(req_data['metadata'])
                 sanitizedName = re.sub(r'[^0-9a-zA-Z]','_',tree.find('comments').text).strip('_')
@@ -619,7 +627,8 @@ def get_log():
                 "success": False,
                 "message": "Log does not exist."
             }
-    except:
+    except Exception as e:
+        print(e)
         return {
             "success":False,
             "message": "Server error."
@@ -628,7 +637,6 @@ def get_log():
 @app.route('/get-status', methods=['GET'])
 def get_status():
     GUID = request.args['GUID']
-    print(GUID)
     if GUID is None:
         return{
             "success": False,
@@ -641,7 +649,8 @@ def get_status():
         row = c.fetchone()
         
         conn.close()
-    except:
+    except Exception as e:
+        print(e)
         return {
             "success": False,
             "message": "Server error.",
@@ -678,7 +687,6 @@ def get_status():
 
     job_store = os.path.abspath(os.path.join(config.RUNNING_WORKFLOWS, GUID))
     
-    print(job_store)
 
     if (config.CWL_RUNNER=="toil-cwl-runner"):
         message = subprocess.check_output(['toil', 'status', job_store])
@@ -720,7 +728,8 @@ def get_results():
 
                 zip_file.close()
                 return send_file(dir_name+".zip")
-            except:
+            except Exception as e:
+                print(e)
                 return {
                     "success": False,
                     "message": "Server error."
@@ -782,14 +791,16 @@ def upload_results():
                         "success": True,
                         "uploadedFolder": folder
                     }
-                except:
+                except Exception as e:
+                    print(e)
                     return {
                     "success": False,
                     "message": "Error uploading to girder."
                 }
 
 
-            except:
+            except Exception as e:
+                print(e)
                 return {
                     "success": False,
                     "message": "Server error."
@@ -831,7 +842,8 @@ def stop_workflow():
         row = c.fetchone()
 
         conn.close()
-    except:
+    except Exception as e:
+        print(e)
         return{
             "success": False,
             "message": "Server error."
@@ -925,7 +937,8 @@ def delete_wf():
         return {
             "success":True
         }
-    except:
+    except Exception as e:
+        print(e)
         return{
             "success": False,
             "message": "Server error."
@@ -1026,7 +1039,8 @@ def download_wf():
         zip_wf.close()
         
         return send_file(zip_wf.filename)
-    except:
+    except Exception as e:
+        print(e)
         return {
             "success": False,
             "message": "Server error."

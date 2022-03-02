@@ -32,7 +32,6 @@ def get_wf_status(pid, guid):
     for root, directories, files in os.walk(dir_name):
         directories[:] = [d for d in directories if d not in ['tmp']]
         for filename in files:
-            print(filename)
             return "FINISHED_OK"
 
     return "FINISHED_ERROR"
@@ -41,7 +40,6 @@ def terminate(GUID, pid, flag, timeout = 0):
     time.sleep(timeout)
     parent = psutil.Process(pid)
     for child in parent.children(recursive=True):  # or parent.children() for recursive=False
-        print(child)
         os.kill(child.pid, signal.SIGINT)
     os.kill(pid, signal.SIGINT)
     conn = sqlite3.connect(config.DATABASE)
@@ -142,7 +140,6 @@ def getZipLink(GUID):
     return link
 
 def getGirderOutputDir(wf):
-    #print(wf)
     if (wf[4] is None):
         return wf[0]
     try:
@@ -159,10 +156,10 @@ def deleteFolderFromGirder(wf, girder_api_key):
         privateFolder = gc.loadOrCreateFolder('Private', userId, parentType="user")
 
         outFolder = gc.loadOrCreateFolder('workflow-outputs', privateFolder['_id'], parentType="folder")
-        wf = util.get_wf(guid)
+        #wf = get_wf(guid)
         wfFolder = gc.loadOrCreateFolder(wf[2], outFolder['_id'], parentType="folder")
 
-        outputFolder = gc.loadOrCreateFolder(util.getGirderOutputDir(wf), wfFolder['_id'], parentType="folder")
+        outputFolder = gc.loadOrCreateFolder(getGirderOutputDir(wf), wfFolder['_id'], parentType="folder")
         gc.delete("folder/"+outputFolder['_id'])
     except:
         return
