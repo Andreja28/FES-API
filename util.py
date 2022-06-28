@@ -131,8 +131,15 @@ def ifReadOnlyWf(workflow):
 def getWfOutputDir(GUID):
     return os.path.join(config.RESULTS,GUID)
 
-def getDownloadLink(GUID,path):
+def getWfInputDir(GUID):
+    return os.path.join(config.INPUTS,GUID)
+
+def getDownloadOutputLink(GUID,path):
     link = "get-output-file?GUID="+GUID+"&filepath="+path
+    return link
+
+def getDownloadInputLink(GUID,path):
+    link = "get-input-file?GUID="+GUID+"&filepath="+path
     return link
 
 def getZipLink(GUID):

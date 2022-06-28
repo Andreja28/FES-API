@@ -715,18 +715,20 @@ def get_results():
         if (util.get_wf_status(util.get_wf_pid(GUID), GUID) == 'FINISHED_OK'):
             try:
                 dir_name = os.path.join(config.RESULTS, GUID)
-                zip_file = zipfile.ZipFile(dir_name+".zip", 'w')
+                if (not os.path.isfile(dir_name+".zip")):
                 
-                if os.path.isdir(os.path.join(dir_name, "tmp")):
-                    shutil.rmtree(os.path.join(dir_name, "tmp")) 
+                    zip_file = zipfile.ZipFile(dir_name+".zip", 'w')
+                
+                    if os.path.isdir(os.path.join(dir_name, "tmp")):
+                        shutil.rmtree(os.path.join(dir_name, "tmp")) 
 
-                for root, directories, files in os.walk(dir_name):
-                    directories[:] = [d for d in directories if d not in ['tmp']]
-                    for filename in files:
-                        filePath = os.path.join(root, filename)
-                        zip_file.write(filePath, filename)
+                    for root, directories, files in os.walk(dir_name):
+                        directories[:] = [d for d in directories if d not in ['tmp']]
+                        for filename in files:
+                            filePath = os.path.join(root, filename)
+                            zip_file.write(filePath, filename)
 
-                zip_file.close()
+                    zip_file.close()
                 return send_file(dir_name+".zip")
             except Exception as e:
                 print(e)
@@ -1047,7 +1049,7 @@ def download_wf():
         }
 
 @app.route('/get-output-file', methods=['GET'])
-def download_file():
+def download_output_file():
     try:
         GUID = request.args['GUID']
         if request.args['GUID'] == None:
@@ -1134,7 +1136,7 @@ def get_output_struct():
         for root, dirs, files in os.walk(util.getWfOutputDir(GUID)):
             files.sort()
             for f in files:
-                link = util.getDownloadLink(GUID,os.path.relpath(os.path.join(root,f),util.getWfOutputDir(GUID)))
+                link = util.getDownloadOutputLink(GUID,os.path.relpath(os.path.join(root,f),util.getWfOutputDir(GUID)))
 
                 foundFlag = False
                 for ext in extensions:
@@ -1171,4 +1173,101 @@ def get_output_struct():
             "success": False,
             "message": "Server error."
         }
+
+@app.route('/get-input-file', methods=['GET'])
+def download_input_file():
+    try:
+        GUID = request.args['GUID']
+        if request.args['GUID'] == None:
+            return{
+                "success": False,
+                "message": "GUID field not set."
+            }
+        
+        if request.args['filepath'] == None:
+            return{
+                "success": False,
+                "message": "Filepath not sent."
+            }
+        
+        filepath = os.path.join(util.getWfInputDir(GUID),request.args['filepath'])
+        return send_file(os.path.abspath(filepath))
+    except Exception as e:
+        print(e)
+        return {
+            "success": False,
+            "message": "Server error."
+        }
+
+@app.route('/get-input-metadata', methods=['GET'])
+def get_input_struct():
+    try:
+        GUID = request.args['GUID']
+        if request.args['GUID'] == None:
+            return{
+                "success": False,
+                "message": "GUID field not set."
+            }
+        
+        conn = sqlite3.connect(config.DATABASE)
+        c = conn.cursor()
+        c.execute("SELECT * FROM workflows where GUID='"+GUID+"'")
+        row = c.fetchone()
+
+        if (row == None):
+            conn.close()
+            return{
+                "success": False,
+                "message": "Workflow does't exist"
+            }
+        
+        typeID = row[1]
+        wf = dict()
+        wf['workflow-template'] = row[2]
+        wf['GUID'] = row[0]
+        wf['status'] = util.get_wf_status(row[3], GUID)
+        wf['metadata'] = row[4]
+        wf['creationDate'] = row[5]
+        wf['inputs'] = list()
+        
+        c.execute('SELECT * FROM Types WHERE ID='+str(typeID))
+        row = c.fetchone()
+        if (row is not None):
+            wf['type']=row[1]
+        conn.close()
+        # inputFiles = dict()
+        # inputFiles['inputs']= list()
+
+        for root, dirs, files in os.walk(util.getWfInputDir(GUID)):
+            files.sort()
+            for f in files:
+                link = util.getDownloadInputLink(GUID,os.path.relpath(os.path.join(root,f),util.getWfOutputDir(GUID)))
+                print(link)
+                print(wf['inputs'])
+                wf['inputs'].append({
+                            "filename": f,
+                            "link": request.host_url + link
+                    })
+        
+        # empty = list()
+        # for ext in outputFiles:
+        #      if not outputFiles[ext]:
+        #         empty.append(ext)
+
+        # for ext in empty:
+        #     outputFiles.pop(ext)
+
+        # wf['inputs'] = inputFiles
+        wf["downloadOutputURL"] = request.host_url + util.getZipLink(GUID)
+        return {
+            "success":True,
+            "workflow":wf
+        }
+    except Exception as e:
+        print(e)
+        return {
+            "success": False,
+            "message": "Server error."
+        }
+
 

@@ -357,6 +357,52 @@ paths:
             application/zip:
               schema:
                 type: file
+  /get-input-metadata:
+    get:
+      parameters: 
+        - in: query
+          name: GUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: GUID of the workflow
+      summary: "Get schema of the workflow inputs alognside with download links for each file"
+      description: ""
+      operationId: "getInputMetadata"
+      responses:
+        "200":
+          description: "Get workflow log"
+          content:
+            application/zip:
+              schema:
+                type: file
+  /get-input-file:
+    get:
+      parameters: 
+        - in: query
+          name: GUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: GUID of the workflow
+        - in: query
+          name: filepath
+          required: true
+          schema:
+            type: string
+          description: Relative path of the file in the workflow input directory
+      summary: "Download specific input of the workflow"
+      description: ""
+      operationId: "getInputFile"
+      responses:
+        "200":
+          description: "Get workflow log"
+          content:
+            application/zip:
+              schema:
+                type: file
   /stop-workflow:
     post:
       consumes:
