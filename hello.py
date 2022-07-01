@@ -1241,7 +1241,7 @@ def get_input_struct():
         for root, dirs, files in os.walk(util.getWfInputDir(GUID)):
             files.sort()
             for f in files:
-                link = util.getDownloadInputLink(GUID,os.path.relpath(os.path.join(root,f),util.getWfOutputDir(GUID)))
+                link = util.getDownloadInputLink(GUID,os.path.relpath(os.path.join(root,f),util.getWfInputDir(GUID)))
                 print(link)
                 print(wf['inputs'])
                 wf['inputs'].append({
