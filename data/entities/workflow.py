@@ -5,6 +5,7 @@ from api.database.repositories import WorkflowRepository
 from api.database.models import Workflow
 from enum import Enum
 from exceptions.api import YamlValidationException
+from datetime import datetime
 
 class ExecutionStatus(Enum):
     NOT_YET_EXECUTED = "NOT_YET_EXECUTED"
@@ -36,10 +37,11 @@ class WorkflowEntity:
             self.status = ExecutionStatus.NOT_YET_EXECUTED
 
             self.metadata = metadata
-
+            self.timestamp = datetime.now().isoformat("T")
             try:
-                workflow = WorkflowRepository.create_workflow(self.GUID, self.template.name, metadata)
-                self.timestamp = workflow.timestamp
+                
+                workflow = WorkflowRepository.create_workflow(self.GUID, self.template.name, self.timestamp, metadata )
+                print(f"Workflow created with GUID: {self.GUID}")
                 utils.zip_folder(self.workdir['inputs'], self.workdir['inputs'])
             except Exception as e:
                 raise e

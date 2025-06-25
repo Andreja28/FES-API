@@ -3,6 +3,7 @@ from api.database import SessionLocal
 from data import utils
 from exceptions.api.database import DatabaseException, NotFoundException, RunningException
 import xml.etree.ElementTree as ET
+from datetime import datetime
 
 class WorkflowRepository:
 
@@ -43,10 +44,10 @@ class WorkflowRepository:
             session.close()
 
     @classmethod
-    def create_workflow(cls, GUID: str, template: str, metadata: str = None):
+    def create_workflow(cls, GUID: str, template: str, timestamp: str, metadata: str = None):
         session = SessionLocal()
         try:
-            workflow = models.Workflow(GUID=GUID, template_name=template, metadata=metadata)
+            workflow = models.Workflow(GUID=GUID, template_name=template, metadata=metadata, timestamp=timestamp)
             
             session.add(workflow)
             session.commit()
