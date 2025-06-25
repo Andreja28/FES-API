@@ -277,6 +277,4 @@ See `/docs` for detailed error examples.
 
 - All endpoints return JSON.
 - For full details and try-it-out, use the Swagger UI at `/docs`.
-- Authentication is not enabled by default.
-
 
