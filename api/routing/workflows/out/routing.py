@@ -70,7 +70,7 @@ async def get_workflow_inputs(guid: str= Depends(GuidValidator.validate_query_pa
 async def get_workflow_log(guid: str = Depends(GuidValidator.validate_query_param)):
     try:
         workflow = WorkflowEntity(WorkflowRepository.get_workflow(guid))
-        if workflow.statis == ExecutionStatus.NOT_YET_EXECUTED:
+        if workflow.status == ExecutionStatus.NOT_YET_EXECUTED:
             return JSONResponse(
                 status_code=404,
                 content={"message": f"Workflow with GUID: '{guid}' has not been executed yet."}
