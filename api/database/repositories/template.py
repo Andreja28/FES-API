@@ -72,7 +72,7 @@ class TemplateRepository:
         try:
             template_object = session.query(models.Template).filter(models.Template.name == template).first()
             if template_object:
-                template_object.description = None
+                template_object.description = ""
                 session.commit()
                 return
             else:
