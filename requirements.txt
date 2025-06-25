@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+ruamel.yaml
+python-multipart

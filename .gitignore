@@ -2,6 +2,7 @@
 **/__pycache__/*
 
 .vscode/
+venv/
 
 data/templates/*
 !data/templates/.gitkeep
