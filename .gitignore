@@ -1,17 +1,19 @@
 **/__pycache__/
 **/__pycache__/*
 
-./data/templates/*
-!./data/templates/.gitkeep
+.vscode/
 
-./data/workflows/logs/*
-!./data/workflows/logs/.gitkeep
+data/templates/*
+!data/templates/.gitkeep
 
-./data/workflows/inputs/*
-!./data/workflows/inputs/.gitkeep
+data/workflows/logs/*
+!data/workflows/logs/.gitkeep
 
-./data/workflows/results/*
-!./data/workflows/results/.gitkeep
+data/workflows/inputs/*
+!data/workflows/inputs/.gitkeep
 
-./data/workflows/running/*
-!./data/workflows/running/.gitkeep
+data/workflows/results/*
+!data/workflows/results/.gitkeep
+
+data/workflows/running/*
+!data/workflows/running/.gitkeep
